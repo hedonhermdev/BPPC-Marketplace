@@ -39,11 +39,28 @@ class Profile(models.Model):
 
         super.save()
 
+    def to_dict(self):
+        return{
+            'pk': self.pk,
+            'user': self.user.pk,
+            'name': self.name,
+            'hostel': self.hostel,
+            'room_no': self.room_no,
+            'contact_no': self.contact_no,
+            'rating': self.rating,
+            'no_of_rating': self.no_of_ratings,
+            'email': self.email,
+        
+        }
 
 class RateUsers(models.Model):
     rating_for = models.ForeignKey(User,related_name='ratings_recieved',on_delete=models.PROTECT)
     rated_by = models.ForeignKey(User,related_name='rating_given',on_delete=models.PROTECT)
     rating = models.IntegerField()
+
+class ProductManager(models.Manager):
+    def tickets():
+        return super(ProductManager,self).get_query_set().filter(is_ticket=True)
 
 class Product(models.Model):
     seller = models.ForeignKey(User,related_name='my_items',on_delete=models.CASCADE)
@@ -52,14 +69,22 @@ class Product(models.Model):
     description = models.CharField(max_length=300)
     interested_buyers = models.ManyToManyField(User)
     sold = models.BooleanField(default=False)
+    is_ticket = models.BooleanField(default=False)
+    
+    retrieve = ProductManager()
 
-class Ticket(models.Model):
-    seller = models.ForeignKey(User,related_name='ticket_to_sell',on_delete=models.CASCADE)
-    name = models.CharField(max_length=60)
-    price = models.IntegerField(blank=False,null=False)
-    Event = models.CharField(max_length=300)
-    interested_buyers = models.ManyToManyField(User)
-    sold = models.BooleanField(default=False)
+    def to_dict(self):
+        return{
+            'pk': self.pk,
+            'seller': self.seller.pk,
+            'price': self.price,
+            'description': self.description,
+            'interested_buyers': [i.profile.to_dict() for i in self.interested_buyers.all()],
+            'sold': self.sold,
+            'is_ticket': self.is_ticket,
+        }
+
+
  
 
 
