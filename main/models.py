@@ -72,6 +72,7 @@ class Product(models.Model):
     is_ticket = models.BooleanField(default=False)
     
     retrieve = ProductManager()
+    objects = models.Manager()
 
     def to_dict(self):
         return{

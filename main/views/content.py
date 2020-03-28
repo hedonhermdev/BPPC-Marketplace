@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
-from rest_framework.response import response
+from rest_framework.decorators import api_view,permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework import status
 # Create your views here.
 
@@ -8,11 +9,13 @@ from django.contrib.auth.models import User
 from main.models import Profile,Product
 
 @api_view(['GET',])
+@permission_classes([IsAuthenticated])
 def get_products(request):
     products = [p.to_dict() for p in Product.objects.all()]
     return Response(products,status=status.HTTP_200_OK)
 
 @api_view(['POST',])
+@permission_classes([IsAuthenticated])
 def add_product(request):
     data = request.data
     product = Product()
@@ -31,6 +34,7 @@ def add_product(request):
     return Response(product.to_dict(),status=status.HTTP_201_CREATED)
 
 @api_view(['GET',])
+@permission_classes([IsAuthenticated])
 def product_detail(request,id):
     try:
         required_product = Product.objects.get(pk=id)
@@ -40,6 +44,7 @@ def product_detail(request,id):
     return Response(required_product.to_dict(),status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_profile(request,id):
     try:
         required_user = User.objects.get(pk=id)
@@ -49,4 +54,3 @@ def get_profile(request,id):
     required_profile = required_user.profile
 
     return Response(required_profile.to_dict(),status=status.HTTP_200_OK)
-    
