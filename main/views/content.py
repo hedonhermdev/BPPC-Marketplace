@@ -108,3 +108,35 @@ def interested_buyers(request, id):
     else:
         product.interested_buyers.add(interested)
     return Response(product.to_dict(), status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def sell_product(request,id):
+    try:
+        required_product = Product.objects.get(pk=id)
+    except Product.DoesNotExist:
+        return Response({'error':'No Such Product Exits.'},status=status.HTTP_404_NOT_FOUND)
+
+    if request.user.id != required_product.seller.id:
+        return Response({'error':'Only seller can sell a product'},status=status.HTTP_400_BAD_REQUEST)
+
+    required_product.sold = True
+    return Response(required_product.to_dict(),status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_products(request,id):
+    try:
+        required_user = User.objects.get(pk=id)
+    except User.DoesNotExist:
+        return Response({'error':'No Such User Exist'},status=status.HTTP_404_NOT_FOUND)
+
+    my_products = [p.to_dict() for p in Product.objects.filter(seller_id=id)]
+    return Response(my_products,status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes(IsAuthenticated])
+def my_profile(request):
+    my_profile = request.user.profile
+    return Response(my_profile.to_dict(),status=status.HTTP_200_OK)
