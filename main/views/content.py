@@ -80,3 +80,8 @@ def user_products(request,id):
     my_products = [p.to_dict() for p in Product.objects.filter(seller_id=id)]
     return Response(my_products,status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes(IsAuthenticated])
+def my_profile(request):
+    my_profile = request.user.profile
+    return Response(my_profile.to_dict(),status=status.HTTP_200_OK)
