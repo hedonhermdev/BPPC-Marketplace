@@ -65,9 +65,27 @@ class Profile(models.Model):
             "email": self.email,
         }
 
+    def to_compact_dict(self):
+        return {
+            "pk": self.pk,
+            "user": self.user.pk,
+            "name": self.name,
+        }
+
+
     def __str__(self):
         return self.user.username
 
+
+@receiver(post_save,sender=User)
+def create_profile(sender,instance,created,**kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+        instance.profile.save()
+
+@receiver(post_save,sender=User)
+def update_profile(sender,instance,**kwargs):
+    instance.profile.save()
 
 class RateUsers(models.Model):
     rating_for = models.ForeignKey(
@@ -116,7 +134,7 @@ class Product(models.Model):
             "price": self.price,
             "description": self.description,
             "interested_buyers": [
-                i.profile.to_dict() for i in self.interested_buyers.all()
+                i.profile.to_compact_dict() for i in self.interested_buyers.all()
             ],
             "sold": self.sold,
             "is_ticket": self.is_ticket,

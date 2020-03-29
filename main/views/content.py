@@ -11,10 +11,8 @@ from main.models import Profile, Product
 from main.paginator import CustomCursorPagination
 
 
-@api_view(
-    ["GET",]
-)
-# @permission_classes([IsAuthenticated])
+@api_view(["GET",])
+@permission_classes([IsAuthenticated])
 def get_products(request):
     paginator = CustomCursorPagination()
     query_set = Product.objects.all()
@@ -23,17 +21,13 @@ def get_products(request):
     return Response(products, status=status.HTTP_200_OK)
 
 
-@api_view(
-    ["POST",]
-)
+@api_view(["POST",])
 @permission_classes([IsAuthenticated])
 def add_product(request):
     data = request.data
     product = Product()
     if data["price"] is None:
-        return Response(
-            "Product should have a Price.", status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({'error':'Product should have a Price.'},status=status.HTTP_400_BAD_REQUEST)
     else:
         validated_price = data["price"]
 
@@ -47,15 +41,13 @@ def add_product(request):
     return Response(product.to_dict(), status=status.HTTP_201_CREATED)
 
 
-@api_view(
-    ["GET",]
-)
+@api_view(["GET",])
 @permission_classes([IsAuthenticated])
 def product_detail(request, id):
     try:
         required_product = Product.objects.get(pk=id)
     except Product.DoesNotExist:
-        return Response("Product not found", status=status.HTTP_404_NOT_FOUND)
+        return Response({'error':'Product not found'},status=status.HTTP_404_NOT_FOUND)
 
     return Response(required_product.to_dict(), status=status.HTTP_200_OK)
 
@@ -66,7 +58,7 @@ def get_profile(request, id):
     try:
         required_user = User.objects.get(pk=id)
     except User.DoesNotExist:
-        return Response("No Such User Exist", status=status.HTTP_404_NOT_FOUND)
+        return Response({'error':'No Such User Exist'},status=status.HTTP_404_NOT_FOUND)
 
     required_profile = required_user.profile
 
@@ -78,7 +70,7 @@ def get_profile(request, id):
 def rate_user(request):
     data = request.data
     if data["rating"] is None:
-        return Response("Rate Seller.", status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error':"seller is not rated."}, status=status.HTTP_400_BAD_REQUEST)
 
     RateUsers(
         rating_for=data["seller"], rated_by=request.user, rating=data["rating"]
@@ -108,3 +100,49 @@ def interested_buyers(request, id):
     else:
         product.interested_buyers.add(interested)
     return Response(product.to_dict(), status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def sell_product(request,id):
+    try:
+        required_product = Product.objects.get(pk=id)
+    except Product.DoesNotExist:
+        return Response({'error':'No Such Product Exits.'},status=status.HTTP_404_NOT_FOUND)
+    
+    if request.user.id != required_product.seller.id:
+        return Response({'error':'Only seller can sell a product'},status=status.HTTP_400_BAD_REQUEST)
+    
+    required_product.sold = True
+    return Response(required_product.to_dict(),status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_products(request,id):
+    try:
+        required_user = User.objects.get(pk=id)
+    except User.DoesNotExist:
+        return Response({'error':'No Such User Exist'},status=status.HTTP_404_NOT_FOUND)
+
+    my_products = [p.to_dict() for p in Product.objects.filter(seller_id=id)]
+    return Response(my_products,status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_profile(request):
+    my_profile = request.user.profile
+    return Response(my_profile.to_dict(),status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_profile(request):
+    user = request.user
+    data = request.data
+    user.profile.name = data['name']
+    user.profile.hostel = data['hostel']
+    user.profile.room_no = data['room_no']
+    user.profile.contact_no = data['contact_no']
+    user.profile.email = data['email']
+
+    user.save()
+
+    return Response(user.profile.to_dict(),status=status.HTTP_200_OK)
