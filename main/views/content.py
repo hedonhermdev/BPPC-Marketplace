@@ -3,19 +3,23 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 
-# Create your views here.
 
 from django.contrib.auth.models import User
 from main.models import Profile, Product
+from main.paginator import CustomCursorPagination
 
 
 @api_view(
     ["GET",]
 )
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def get_products(request):
-    products = [p.to_dict() for p in Product.objects.all()]
+    paginator = CustomCursorPagination()
+    query_set = Product.objects.all()
+    context = paginator.paginate_queryset(query_set, request)
+    products = [p.to_dict() for p in context]
     return Response(products, status=status.HTTP_200_OK)
 
 
@@ -84,7 +88,7 @@ def rate_user(request):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def search_product_by_category(request):
+def search_product(request):
     data = request.data
     products = Product.objects.all()
     if data["category"] is not None:

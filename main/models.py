@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 HOSTEL_CHOICES = (
     ("SR", "SR Bhavan"),
@@ -32,22 +33,24 @@ class Profile(models.Model):
 
     def save(self):
         """
-        always updae the rating of user
+        always update the rating of user
         """
         user = self.user
         raters = user.ratings_recieved.all()
 
         rate_points = 0
         no_of_ratings = 0
+        rating = 0
         for r in raters:
             rate_points = r.rating + rate_points
             no_of_ratings = no_of_ratings + 1
 
         self.no_of_ratings = no_of_ratings
-        rating = rate_points / no_of_ratings
+        if no_of_ratings != 0:
+            rating = rate_points / no_of_ratings
         self.rating = round(rating, 1)
 
-        super.save()
+        super().save()
 
     def to_dict(self):
         return {
@@ -63,7 +66,7 @@ class Profile(models.Model):
         }
 
     def __str__(self):
-        return self.user
+        return self.user.username
 
 
 class RateUsers(models.Model):
@@ -90,12 +93,17 @@ class Product(models.Model):
     price = models.IntegerField(blank=False, null=False)
     description = models.CharField(max_length=300)
     category = models.CharField(choices=CATEGORY_CHOICES, max_length=4, null=True)
-    interested_buyers = models.ManyToManyField(User)
+    interested_buyers = models.ManyToManyField(User, blank=True)
     sold = models.BooleanField(default=False)
     is_ticket = models.BooleanField(default=False)
+    created = models.DateTimeField(default=timezone.now)
 
     reported_by = models.ForeignKey(
-        User, related_name="products_reported", on_delete=models.PROTECT, null=True,
+        User,
+        related_name="products_reported",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
     )
 
     retrieve = ProductManager()
