@@ -27,13 +27,13 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     hostel = models.CharField(choices=HOSTEL_CHOICES, max_length=2)
-    room_no = models.PositiveIntegerField()
-    contact_no = models.PositiveIntegerField()
+    room_no = models.PositiveIntegerField(blank=True,null=True)
+    contact_no = models.PositiveIntegerField(blank=True,null=True)
     rating = models.DecimalField(max_digits=2, decimal_places=1, null=True, blank=True)
     no_of_ratings = models.PositiveIntegerField(default=0)
     email = models.EmailField()
 
-    def save(self):
+    def save(self,*args,**kwargs):
         """
         always update the rating of user
         """

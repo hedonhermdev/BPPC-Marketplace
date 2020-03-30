@@ -30,8 +30,8 @@ def add_product(request):
         return Response({'error':'Product should have a Price.'},status=status.HTTP_400_BAD_REQUEST)
     else:
         validated_price = data["price"]
-
-    product.seller = User.objects.get(pk=data["seller"])
+    
+    product.seller = request.user
     product.price = validated_price
     product.interested_buyers = data["interested_buyers"]
     product.sold = data["sold"]
