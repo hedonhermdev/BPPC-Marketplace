@@ -27,13 +27,13 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     hostel = models.CharField(choices=HOSTEL_CHOICES, max_length=2)
-    room_no = models.PositiveIntegerField(blank=True,null=True)
-    contact_no = models.PositiveIntegerField(blank=True,null=True)
+    room_no = models.PositiveIntegerField(blank=True, null=True)
+    contact_no = models.PositiveIntegerField(blank=True, null=True)
     rating = models.DecimalField(max_digits=2, decimal_places=1, null=True, blank=True)
     no_of_ratings = models.PositiveIntegerField(default=0)
     email = models.EmailField()
 
-    def save(self,*args,**kwargs):
+    def save(self, *args, **kwargs):
         """
         always update the rating of user
         """
@@ -74,20 +74,21 @@ class Profile(models.Model):
             "name": self.name,
         }
 
-
     def __str__(self):
         return self.user.username
 
 
-@receiver(post_save,sender=User)
-def create_profile(sender,instance,created,**kwargs):
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
         instance.profile.save()
 
-@receiver(post_save,sender=User)
-def update_profile(sender,instance,**kwargs):
+
+@receiver(post_save, sender=User)
+def update_profile(sender, instance, **kwargs):
     instance.profile.save()
+
 
 class RateUsers(models.Model):
     rating_for = models.ForeignKey(

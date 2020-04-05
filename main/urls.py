@@ -15,12 +15,16 @@ urlpatterns = [
         content.interested_buyers,
         name="interested-buyers",
     ),
-    path('api/get_product_detail/sell_product/<int:id>',content.sell_product,name='sell-product'),
-    path('api/get_user_products/<int:id>',content.user_products,name='user-products'),
-    path('api/my_profile/',content.my_profile,name='my-profile'),
-    path('api/my_profile/update_profile/',content.update_profile,name='update-profile'),
-
+    path(
+        "api/get_product_detail/sell_product/<int:id>",
+        content.sell_product,
+        name="sell-product",
+    ),
+    path("api/get_user_products/<int:id>", content.user_products, name="user-products"),
+    path("api/my_profile/", content.my_profile, name="my-profile"),
+    path(
+        "api/my_profile/update_profile/", content.update_profile, name="update-profile"
+    ),
     path("auth/login/", auth.login, name="auth-login"),
     path("auth/register/", auth.register, name="auth-register"),
 ]
-
