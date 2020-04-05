@@ -9,28 +9,44 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('main', '0001_initial'),
+        ("main", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='category',
-            field=models.CharField(choices=[('STAT', 'Stationay'), ('MOVI', 'Movie Ticket'), ('GRUB', 'Grub Ticket'), ('ELEC', 'Electronics'), ('CLOT', 'Clothing'), ('OTHR', 'Other Utility')], max_length=4, null=True),
+            model_name="product",
+            name="category",
+            field=models.CharField(
+                choices=[
+                    ("STAT", "Stationay"),
+                    ("MOVI", "Movie Ticket"),
+                    ("GRUB", "Grub Ticket"),
+                    ("ELEC", "Electronics"),
+                    ("CLOT", "Clothing"),
+                    ("OTHR", "Other Utility"),
+                ],
+                max_length=4,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='product',
-            name='reported_by',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='products_reported', to=settings.AUTH_USER_MODEL),
+            model_name="product",
+            name="reported_by",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="products_reported",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='product',
-            name='interested_buyers',
+            model_name="product",
+            name="interested_buyers",
             field=models.ManyToManyField(blank=True, to=settings.AUTH_USER_MODEL),
         ),
         migrations.AlterField(
-            model_name='profile',
-            name='no_of_ratings',
+            model_name="profile",
+            name="no_of_ratings",
             field=models.PositiveIntegerField(default=0),
         ),
     ]
