@@ -6,13 +6,13 @@ A Marketplace app aimed to make it easy for students to find their bookpops, cyc
 
 Following steps must be followed to set up you server locally on your machine.
 
-1.```git clone https://github.com/anshalshukla/BPPC_MARKETPLACE```
+1. ```git clone https://github.com/anshalshukla/BPPC_MARKETPLACE```
 
-2.```cd BPPC_MARKETPLACE```
+2. ```cd BPPC_MARKETPLACE```
 
-3.```pip install -r requirements.txt```
+3. ```pip install -r requirements.txt```
 
-4.```python manage.py runserver```
+4. ```python manage.py runserver```
 
 ## Getting and using an Auth Token
 
@@ -65,7 +65,7 @@ fetch("127.0.0.1:8000/api/get_listings", requestOptions)
  
  ```
  
- ##API (End-Points)
+ ## API (End-Points)
  
  1. To get product list: ```GET /api/get_products/```
  
@@ -75,3 +75,31 @@ fetch("127.0.0.1:8000/api/get_listings", requestOptions)
  
  4. To see profile of a seller: ```GET /api/get_profile_detail/id/```
  
+ 5. To search for a product by category or by description: ```GET /api/interested_buyers?category=<"Entered by user">&description=<"Entered by user">```
+ 
+ The search category can be any of the following:
+ CATEGORY_CHOICES = (
+    ("STAT", "Stationay"),
+    ("MOVI", "Movie Ticket"),
+    ("GRUB", "Grub Ticket"),
+    ("ELEC", "Electronics"),
+    ("CLOT", "Clothing"),
+    ("OTHR", "Other Utility"),
+)
+
+Whereas for string in description option it will go through the description of product as mentioned by the seller.
+If both (category & description) are entered then the server will send only the products in that particular category with the mentioned keywords in description whereas in both the other cases search will be performed on whole product list with just the mentioned query parameter. 
+
+6. To render list of all the interested buyers: ```GET /api/interested_buyers/id/ ```
+
+7. To render list of all the products listed by a particular user: ```GET /api/get_user_products/id/```
+
+Here id is the id of the seller.
+
+8. To see your own profile: ```GET /api/my_profile/```
+
+9. To Update your profile: ```POST /api/my_profile/update_profile/```
+
+10. To Mark the product as Sold: ```GET /api/get_user_products/id/```
+
+This option will only be present with seller of the product.
