@@ -14,11 +14,43 @@ Following steps must be followed to set up you server locally on your machine.
 
 4. ```python manage.py runserver```
 
+## Model Structure
+
+![](model_structure.png)
+
+The hostel field is a choice field with following options:
+
+    ("SR", "SR Bhavan"),
+    
+    ("RP", "Rana Pratap Bhavan"),
+   
+    ("GN", "Gandhi Bhavan"),
+    
+    ("KR", "Krishna Bhavan"),
+    
+    ("MR", "Meera Bhavan"),
+
+I could have thought of just few, you are welcome to add more.
+
+The product model has a category field which is also a choice field with following options:
+
+    ("STAT", "Stationay"),
+    
+    ("MOVI", "Movie Ticket"),
+    
+    ("GRUB", "Grub Ticket"),
+    
+    ("ELEC", "Electronics"),
+    
+    ("CLOT", "Clothing"),
+    
+    ("OTHR", "Other Utility"),
+
 ## Getting and using an Auth Token
 
 To access the API endpoints, you will need an Auth token. Do the following to get one:
 
-1. Go to (Google OAuth Playground)[(https://developers.google.com/oauthplayground/)].
+1. Go to (Google OAuth Playground)[https://developers.google.com/oauthplayground/].
 
 2. In the first step, select Google OAuth2, select both user.email and user.profile. Login using BITS Mail when asked.
 
@@ -65,6 +97,8 @@ fetch("127.0.0.1:8000/api/get_listings", requestOptions)
  
  ```
  
+ If you are not very familiar with terminal then you can alterenatively use Postman to generate authorization tokens and to test end- points.
+ 
  ## API (End-Points)
  
  1. To get product list: ```GET /api/get_products/```
@@ -77,15 +111,7 @@ fetch("127.0.0.1:8000/api/get_listings", requestOptions)
  
  5. To search for a product by category or by description: ```GET /api/interested_buyers?category=<"Entered by user">&description=<"Entered by user">```
  
- The search category can be any of the following:
- CATEGORY_CHOICES = (
-    ("STAT", "Stationay"),
-    ("MOVI", "Movie Ticket"),
-    ("GRUB", "Grub Ticket"),
-    ("ELEC", "Electronics"),
-    ("CLOT", "Clothing"),
-    ("OTHR", "Other Utility"),
-)
+ The search category choices have been defined in Model Structure.
 
 Whereas for string in description option it will go through the description of product as mentioned by the seller.
 If both (category & description) are entered then the server will send only the products in that particular category with the mentioned keywords in description whereas in both the other cases search will be performed on whole product list with just the mentioned query parameter. 
