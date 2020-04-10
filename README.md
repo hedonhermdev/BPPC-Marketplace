@@ -12,6 +12,12 @@ Following steps must be followed to set up you server locally on your machine.
 
 3. ```pip install -r requirements.txt```
 
+Before Running the server for the first time in your machine you must apply migrations.
+
+    a. ```python manage.py makemigrations```
+    
+    b. ```python manage.py migrate```
+
 4. ```python manage.py runserver```
 
 ## Model Structure
