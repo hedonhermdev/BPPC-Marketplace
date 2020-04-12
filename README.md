@@ -107,6 +107,10 @@ fetch("127.0.0.1:8000/api/get_listings", requestOptions)
  
  ## API (End-Points)
  
+ Once the user Logs In successfully (for which the frontend services will send a jwt token and verifying which backend will authenticate the user and provide an access_token), the access_token needs to be provided with the request to consume the end-points. To do this, the app sends the access token in the request as an "Authorization" HTTP header.
+ 
+ ``` curl -H "Authorization: Bearer <access_token>" http://<host>.endpoint/?<query-parameters>```
+ 
  1. To get product list: ```GET /api/get_products/```
  
  2. To add product: ```POST /api/add_products/```
