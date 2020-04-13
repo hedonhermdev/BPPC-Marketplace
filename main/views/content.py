@@ -10,13 +10,14 @@ from django.db import transaction
 from django.contrib.auth.models import User
 from main.models import Profile, Product
 
+import logging
+
+log = logging.getLogger("main")
 
 @api_view(
     ["GET",]
 )
 @permission_classes([IsAuthenticated])
-@transaction.atomic
-@cache_page(60 * 5)
 def get_products(request):
     paginator = PageNumberPagination()
     query_set = Product.objects.all()
