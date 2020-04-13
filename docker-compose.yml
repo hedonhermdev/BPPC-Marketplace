@@ -12,7 +12,7 @@ services:
     ports:
       - "3306:3306"
   search:
-    image: elasticsearch:latest
+    image: elasticsearch:6.8.8
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
