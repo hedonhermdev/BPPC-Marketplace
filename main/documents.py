@@ -1,5 +1,6 @@
 # Documents for Elastic Search
-from django_elasticsearch_dsl import Document, fields
+from django_elasticsearch_dsl.documents import Document
+from django_elasticsearch_dsl import fields
 from django_elasticsearch_dsl.registries import registry
 from main.models import Profile, Product
 
@@ -20,9 +21,6 @@ class ProfileDocument(Document):
 
 @registry.register_document
 class ProductDocument(Document):
-    seller = fields.ObjectField(properties={
-        'name': fields.TextField(),
-    })
 
     class Index:
         name = 'products'
