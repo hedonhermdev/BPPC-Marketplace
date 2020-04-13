@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "main",
     "rest_framework",
-    "django_elasticsearch_dsl",
 ]
 
 MIDDLEWARE = [
@@ -182,11 +181,4 @@ LOGGING = {
         },
     }
 
-}
-
-
-ELASTICSEARCH_DSL = {
-    "default": {
-        "hosts": "localhost:9200",
-    },
 }
