@@ -4,7 +4,9 @@ from django_elasticsearch_dsl import fields
 from django_elasticsearch_dsl.registries import registry
 from main.models import Profile, Product
 
-@registry.register_document
+
+# Commented this for now because it does not let you create a superuser. 
+#@registry.register_document
 class ProfileDocument(Document):
 
     hostel = fields.TextField(attr="hostel_to_string")
