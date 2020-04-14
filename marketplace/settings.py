@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from marketplace.keyconfig import Secrets, Elasticsearch, PostgresDB
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,12 +21,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "zg(od63#s(ix=)12#f=q6asvox!o0#vm5_fu^ahsl!md&=kjxa"
+SECRET_KEY = Secrets.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", Secrets.HOST]
 
 
 # Application definition
@@ -84,12 +85,12 @@ WSGI_APPLICATION = "marketplace.wsgi.application"
 # }
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "marketplace",
-        "USER": "userone",
-        "PASSWORD": "hedonhermdev",
-        "HOST": "marketplace_db",
-        "PORT": "5432",
+        "ENGINE": PostgresDB.ENGINE,
+        "NAME": PostgresDB.NAME,
+        "USER": PostgresDB.USER,
+        "PASSWORD": PostgresDB.PASSWORD,
+        "HOST": PostgresDB.HOST,
+        "PORT": PostgresDB.PORT,
     }
 }
 
@@ -119,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Kolkata"
 
 USE_I18N = True
 
@@ -131,7 +132,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = "/static/"
+STATIC_URL = "/staticfiles/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -197,6 +200,6 @@ LOGGING = {
 
 ELASTICSEARCH_DSL = {
     "default": {
-        "hosts": "marketplace_search:9200",
+        "hosts": Elasticsearch.HOSTS,
     },
 }

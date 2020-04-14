@@ -33,15 +33,22 @@ services:
     container_name: marketplace_web
     build: .
     command: >
-      bash -c "python manage.py migrate 
-      && python manage.py runserver 0.0.0.0:8000"
-    volumes: 
-      - .:/code
-    ports:
-      - "8000:8000"
+      bash -c "python manage.py makemigrations --no-input
+      && python manage.py migrate
+      && gunicorn marketplace.wsgi:application --bind 0.0.0.0:8000"
+    expose:
+      - 8000
     depends_on:
       - db
       - search
+  nginx:
+    container_name: marketplace_nginx
+    build: ./nginx
+    ports: 
+      - 1337:80
+    depends_on:
+      - web
+
 
 volumes:
   postgres-data:

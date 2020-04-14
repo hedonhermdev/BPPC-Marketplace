@@ -34,3 +34,4 @@ elasticsearch>=6.0.0,<7.0.0
 elasticsearch-dsl==6.4.0
 mysqlclient==1.4.6
 psycopg2==2.8.5
+gunicorn==20.0.4
