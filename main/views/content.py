@@ -162,7 +162,7 @@ def user_products(request, id):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def my_profile(request):
+def my_prChat-App/blob/master/public/index.htmlofile(request):
     my_profile = request.user.profile
     return Response(my_profile.to_dict(), status=status.HTTP_200_OK)
 
