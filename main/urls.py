@@ -1,5 +1,7 @@
 from django.urls import path
 from .views import content, auth
+from graphene_django.views import GraphQLView
+from marketplace.schema import schema
 
 urlpatterns = [
     path("api/get_products/", content.get_products, name="get-products"),
@@ -19,8 +21,10 @@ urlpatterns = [
     path('api/get_user_products/<int:id>',content.user_products,name='user-products'),
     path('api/my_profile/',content.my_profile,name='my-profile'),
     path('api/my_profile/update_profile/',content.update_profile,name='update-profile'),
+    path('api/graphql',GraphQLView.as_view(graphiql=True, schema=schema)),
 
     path("auth/login/", auth.login, name="auth-login"),
     path("auth/register/", auth.register, name="auth-register"),
+
 ]
 
