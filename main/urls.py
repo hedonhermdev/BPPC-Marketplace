@@ -1,9 +1,10 @@
 from django.urls import path
-from .views import content, auth
+from .views import content, auth, index
 from graphene_django.views import GraphQLView
 from marketplace.schema import schema
 
 urlpatterns = [
+    path("index/", index.index, name="index"),
     path("api/get_products/", content.get_products, name="get-products"),
     path("api/add_product/", content.add_product, name="add-product"),
     path(
