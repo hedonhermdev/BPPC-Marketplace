@@ -189,9 +189,6 @@ LOGGING = {
     },
 }
 
-
-}
-
 #---------GRAPHENE------------
 
 GRAPHENE = {
