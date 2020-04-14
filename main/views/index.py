@@ -1,4 +1,3 @@
-from rest_framework.response import Response
-
+from django.http import HttpResponse
 def index(request):
-    return Response("If you can see this, then the backend server is (hopefully) working. \n\t\t\t\t- Tirth Jain")
+    return HttpResponse("If you can see this, then the backend server is (hopefully) working. \n\t\t\t\t- Tirth Jain")
