@@ -111,7 +111,7 @@ class ProductManager(models.Manager):
 
 
 class Product(models.Model):
-    seller = models.ForeignKey(User, related_name="my_items", on_delete=models.CASCADE)
+    seller = models.ForeignKey(User, related_name="my_items", on_delete=models.CASCADE,null=True,blank=True)
     name = models.CharField(max_length=60)
     price = models.IntegerField(blank=False, null=False)
     description = models.CharField(max_length=300)

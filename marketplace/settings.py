@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "main",
     "rest_framework",
+    'graphene_django',
     "django_elasticsearch_dsl",
     "corsheaders",
 ]
@@ -149,6 +150,8 @@ JWT_AUTH = {
     "JWT_VERIFY_EXPIRATION": False,
 }
 
+#---------LOGGING----------
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": True,
@@ -184,6 +187,13 @@ LOGGING = {
 }
 
 
+}
+
+#---------GRAPHENE------------
+
+GRAPHENE = {
+    'SCHEMA': 'marketplace.schema.schema'
+}
 ELASTICSEARCH_DSL = {
     "default": {"hosts": "marketplace_search:9200",},
 }
