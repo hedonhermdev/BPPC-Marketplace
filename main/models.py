@@ -33,6 +33,9 @@ class Profile(models.Model):
     no_of_ratings = models.PositiveIntegerField(default=0)
     email = models.EmailField()
 
+    def hostel_to_string(self):
+        return getattr(dict(HOSTEL_CHOICES), self.hostel, "")
+
     def save(self,*args,**kwargs):
         """
         always update the rating of user

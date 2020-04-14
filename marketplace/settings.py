@@ -40,9 +40,12 @@ INSTALLED_APPS = [
     "main",
     "rest_framework",
     'graphene_django',
+    "django_elasticsearch_dsl",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -76,10 +79,20 @@ WSGI_APPLICATION = "marketplace.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+#     }
+# }
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "marketplace",
+        "USER": "userone",
+        "PASSWORD": "hedonhermdev",
+        "HOST": "marketplace_db",
+        "PORT": "5432",
     }
 }
 
@@ -140,49 +153,39 @@ JWT_AUTH = {
 #---------LOGGING----------
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'formatters': {
-        'standard': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt' : "%d/%b/%Y %H:%M:%S"
+    "version": 1,
+    "disable_existing_loggers": True,
+    "formatters": {
+        "standard": {
+            "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            "datefmt": "%d/%b/%Y %H:%M:%S",
         },
     },
-
-    'handlers': {
-        'null': {
-            'level':'DEBUG',
-            'class':'logging.NullHandler',
+    "handlers": {
+        "null": {"level": "DEBUG", "class": "logging.NullHandler",},
+        "logfile": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "main/logfile.log"),
+            "mode": "w",
         },
-        'logfile': {
-            'level':'DEBUG',
-            'class':'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR,'main/logfile.log'),
-            'mode':'w'
-        },
-        'console':{
-            'level':'INFO',
-            'class':'logging.StreamHandler',
-            'formatter':'standard'
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
         },
     },
+    "loggers": {
+        "django": {"handlers": ["console"], "propagate": True, "level": "WARN",},
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "main": {"handlers": ["console", "logfile"], "level": "DEBUG",},
+    },
+}
 
-    'loggers': {
-        'django':{
-            'handlers':['console'],
-            'propagate':True,
-            'level':'WARN',
-        },
-        'django.db.backends': {
-            'handlers' : ['console'],
-            'level':'DEBUG',
-            'propagate':False,
-        },
-        'main': {
-            'handlers': ['console','logfile'],
-            'level': 'DEBUG',
-        },
-    }
 
 }
 
@@ -191,3 +194,9 @@ LOGGING = {
 GRAPHENE = {
     'SCHEMA': 'marketplace.schema.schema'
 }
+ELASTICSEARCH_DSL = {
+    "default": {"hosts": "marketplace_search:9200",},
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
+
