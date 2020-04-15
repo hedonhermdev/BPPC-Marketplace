@@ -16,42 +16,111 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='RateUsers',
+            name="RateUsers",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('rating', models.IntegerField()),
-                ('rated_by', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='rating_given', to=settings.AUTH_USER_MODEL)),
-                ('rating_for', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='ratings_recieved', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("rating", models.IntegerField()),
+                (
+                    "rated_by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="rating_given",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "rating_for",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="ratings_recieved",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Profile',
+            name="Profile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('hostel', models.CharField(choices=[('SR', 'SR Bhavan'), ('RP', 'Rana Pratap Bhavan'), ('GN', 'Gandhi Bhavan'), ('KR', 'Krishna Bhavan'), ('MR', 'Meera Bhavan')], max_length=2)),
-                ('room_no', models.PositiveIntegerField()),
-                ('contact_no', models.PositiveIntegerField()),
-                ('rating', models.DecimalField(blank=True, decimal_places=1, max_digits=2, null=True)),
-                ('no_of_ratings', models.IntegerField(default=0)),
-                ('email', models.EmailField(max_length=254)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "hostel",
+                    models.CharField(
+                        choices=[
+                            ("SR", "SR Bhavan"),
+                            ("RP", "Rana Pratap Bhavan"),
+                            ("GN", "Gandhi Bhavan"),
+                            ("KR", "Krishna Bhavan"),
+                            ("MR", "Meera Bhavan"),
+                        ],
+                        max_length=2,
+                    ),
+                ),
+                ("room_no", models.PositiveIntegerField()),
+                ("contact_no", models.PositiveIntegerField()),
+                (
+                    "rating",
+                    models.DecimalField(
+                        blank=True, decimal_places=1, max_digits=2, null=True
+                    ),
+                ),
+                ("no_of_ratings", models.IntegerField(default=0)),
+                ("email", models.EmailField(max_length=254)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=60)),
-                ('price', models.IntegerField()),
-                ('description', models.CharField(max_length=300)),
-                ('sold', models.BooleanField(default=False)),
-                ('is_ticket', models.BooleanField(default=False)),
-                ('interested_buyers', models.ManyToManyField(to=settings.AUTH_USER_MODEL)),
-                ('seller', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='my_items', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=60)),
+                ("price", models.IntegerField()),
+                ("description", models.CharField(max_length=300)),
+                ("sold", models.BooleanField(default=False)),
+                ("is_ticket", models.BooleanField(default=False)),
+                (
+                    "interested_buyers",
+                    models.ManyToManyField(to=settings.AUTH_USER_MODEL),
+                ),
+                (
+                    "seller",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="my_items",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
-            managers=[
-                ('retrieve', django.db.models.manager.Manager()),
-            ],
+            managers=[("retrieve", django.db.models.manager.Manager()),],
         ),
     ]

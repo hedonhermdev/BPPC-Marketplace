@@ -5,68 +5,89 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from main.auth_helpers import generate_random_password,get_jwt_with_user
+from main.auth_helpers import generate_random_password, get_jwt_with_user
 
 import logging
+
 log = logging.getLogger("main")
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 def login(request):
     try:
-        id_token = request.data['id_token']
+        id_token = request.data["id_token"]
     except KeyError:
         log.error(f"{request.path}: no id_token provided in request body. ")
-        return Response({'error':'No id_token provided'},status=status.HTTP_403_FORBIDDEN)
+        return Response(
+            {"error": "No id_token provided"}, status=status.HTTP_403_FORBIDDEN
+        )
 
-    id_info = googleIdToken.verify_oauth2_token(id_token,google_requests.Request())
-    
-    if id_info['iss'] not in ["accounts.google.com","https://accounts.google.com"]:
-        return Response({'error':'Not a valid Google account'},status=status.HTTP_403_FORBIDDEN)
+    id_info = googleIdToken.verify_oauth2_token(id_token, google_requests.Request())
 
-    email = id_info['email']
+    if id_info["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
+        return Response(
+            {"error": "Not a valid Google account"}, status=status.HTTP_403_FORBIDDEN
+        )
 
-    domain = getattr(id_info,'hd',email.split('@')[-1])
+    email = id_info["email"]
 
-    if domain != 'pilani.bits-pilani.ac.in':
+    domain = getattr(id_info, "hd", email.split("@")[-1])
+
+    if domain != "pilani.bits-pilani.ac.in":
         log.error(f"{request.path}: {email}is not a valid BITS Mail account.")
-        return Response({'error':'Not a valid BITS Mail account'},status=status.HTTP_403_FORBIDDEN)
+        return Response(
+            {"error": "Not a valid BITS Mail account"}, status=status.HTTP_403_FORBIDDEN
+        )
 
     try:
         user = User.objects.get(email=email)
     except User.DoesNotExist:
         log.error(f"{request.path}: {email} is not registered.")
-        return Response({'error':'Account not found. You must register first.'},status=status.HTTP_403_FORBIDDEN)
+        return Response(
+            {"error": "Account not found. You must register first."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
 
     token = get_jwt_with_user(user)
     log.info(f"{request.path}: user {user.username} logged in.")
-    return Response({'token': token},status=status.HTTP_200_OK)
+    return Response({"token": token}, status=status.HTTP_200_OK)
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 def register(request):
     try:
-        id_token = request.data['id_token']
+        id_token = request.data["id_token"]
     except KeyError:
         log.error(f"{request.path}: no id_token provided in request body. ")
-        return Response({'error':'No id_token provided'},status=status.HTTP_403_FORBIDDEN)
+        return Response(
+            {"error": "No id_token provided"}, status=status.HTTP_403_FORBIDDEN
+        )
 
-    id_info = googleIdToken.verify_oauth2_token(id_token,google_requests.Request())
+    id_info = googleIdToken.verify_oauth2_token(id_token, google_requests.Request())
 
-    if id_info['iss'] not in ["accounts.google.com","https://accounts.google.com"]:
-        return Response({'error':'Not a valid Google account'},status=status.HTTP_403_FORBIDDEN)
+    if id_info["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
+        return Response(
+            {"error": "Not a valid Google account"}, status=status.HTTP_403_FORBIDDEN
+        )
 
-    email = id_info['email']
+    email = id_info["email"]
 
-    domain = getattr(id_info,'hd',email.split('@')[-1])
+    domain = getattr(id_info, "hd", email.split("@")[-1])
 
-    if domain != 'pilani.bits-pilani.ac.in':
+    if domain != "pilani.bits-pilani.ac.in":
         log.error(f"{request.path}: {email} is not a valid BITS Mail account")
-        return Response({'error':'Not a valid BITS Mail account'},status=status.HTTP_403_FORBIDDEN)
+        return Response(
+            {"error": "Not a valid BITS Mail account"}, status=status.HTTP_403_FORBIDDEN
+        )
 
     if User.objects.filter(email=email).count() != 0:
         log.error("f{request.path}: user with email {email} already exists")
-        return Response({'error': 'An account already exists. Try logging in instead. '}, status=status.HTTP_403_FORBIDDEN)       
-    
-    user = User(username=email.split('@')[0],email=email)
+        return Response(
+            {"error": "An account already exists. Try logging in instead. "},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    user = User(username=email.split("@")[0], email=email)
     user.set_password(generate_random_password())
 
     user.save()
@@ -74,4 +95,7 @@ def register(request):
     token = get_jwt_with_user(user)
 
     log.info(f"{request.path}: created user with email {user.email}")
-    return Response({'token':token,'username':user.username,'email':user.email},status=status.HTTP_201_CREATED)
+    return Response(
+        {"token": token, "username": user.username, "email": user.email},
+        status=status.HTTP_201_CREATED,
+    )
