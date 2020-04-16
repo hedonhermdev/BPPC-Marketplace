@@ -52,9 +52,8 @@ def login(request):
     log.info(f"{request.path}: user {user.username} logged in.")
     return Response({"token": token}, status=status.HTTP_200_OK)
 
-
-@api_view(["POST"])
-def register(request):
+@api_view(['POST'])
+def authenticate(request):
     try:
         id_token = request.data["id_token"]
     except KeyError:
@@ -81,11 +80,10 @@ def register(request):
         )
 
     if User.objects.filter(email=email).count() != 0:
-        log.error("f{request.path}: user with email {email} already exists")
-        return Response(
-            {"error": "An account already exists. Try logging in instead. "},
-            status=status.HTTP_403_FORBIDDEN,
-        )
+        user = User.objects.get(email=email)
+        token = get_jwt_with_user(user)
+        log.info(f"{request.path}: user {user.username} logged in.")
+        return Response({"token": token, "isNew": False}, status=status.HTTP_200_OK)
 
     user = User(username=email.split("@")[0], email=email)
     user.set_password(generate_random_password())

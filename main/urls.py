@@ -29,5 +29,6 @@ urlpatterns = [
     ),
     path("api/graphql", GraphQLView.as_view(graphiql=True, schema=schema)),
     path("auth/login/", auth.login, name="auth-login"),
-    path("auth/register/", auth.register, name="auth-register"),
+    path("auth/authenticate/", auth.authenticate, name="auth-authenticate"),
+
 ]
