@@ -63,10 +63,12 @@ def register(request):
         return Response({'error':'Not a valid BITS Mail account'},status=status.HTTP_403_FORBIDDEN)
 
     if User.objects.filter(email=email).count() != 0:
-        log.error("f{request.path}: user with email {email} already exists")
-        return Response({'error': 'An account already exists. Try logging in instead. '}, status=status.HTTP_403_FORBIDDEN)       
-    
-    user = User(username=email.split('@')[0],email=email)
+        token = get_jwt_with_user(user)
+        log.info(f"{request.path}: user {user.username} logged in.")
+        return Response({"token": token, "isNew": False}, status=status.HTTP_200_OK)
+
+
+    user = User(username=email.split("@")[0], email=email)
     user.set_password(generate_random_password())
 
     user.save()
@@ -74,4 +76,8 @@ def register(request):
     token = get_jwt_with_user(user)
 
     log.info(f"{request.path}: created user with email {user.email}")
-    return Response({'token':token,'username':user.username,'email':user.email},status=status.HTTP_201_CREATED)
+    return Response(
+        {"token": token, "username": user.username, "email": user.email, "isNew": True},
+        status=status.HTTP_201_CREATED,
+    )
+
