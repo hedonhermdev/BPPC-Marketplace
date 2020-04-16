@@ -29,7 +29,6 @@ urlpatterns = [
         "api/my_profile/update_profile/", content.update_profile, name="update-profile"
     ),
     path("api/graphql", GraphQLView.as_view(graphiql=True, schema=schema)),
-    path("auth/login/", auth.login, name="auth-login"),
     path("auth/authenticate/", auth.authenticate, name="auth-authenticate"),
 
 ]
