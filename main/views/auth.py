@@ -54,6 +54,7 @@ def authenticate(request):
 
     log.info(f"{request.path}: created user with email {user.email}")
     return Response(
-        {"token": token, "username": user.username, "email": user.email},
+        {"token": token, "username": user.username, "email": user.email, "isNew": True},
         status=status.HTTP_201_CREATED,
     )
+
