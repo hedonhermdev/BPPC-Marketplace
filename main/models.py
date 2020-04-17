@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from PIL import Image
+import os
 
 HOSTEL_CHOICES = (
     ("SR", "SR Bhavan"),
@@ -150,3 +152,19 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="product.pics")
+    # Set the upload_to = "media_url/path"
+
+    def save(self, *args, **kwargs):
+        img = os.urandom(8)
+        super().save(*args, **kwargs)
+
+        img = Image.open(self.image.path)
+        if img.height > 300 or img.width > 300:
+            new_size = (200, 200)
+            img.thumbnail(new_size)
+            img.save(self.image.path)
