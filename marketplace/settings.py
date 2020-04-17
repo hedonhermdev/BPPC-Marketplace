@@ -80,22 +80,22 @@ WSGI_APPLICATION = "marketplace.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-#     }
-# }
 DATABASES = {
     "default": {
-        "ENGINE": PostgresDB.ENGINE,
-        "NAME": PostgresDB.NAME,
-        "USER": PostgresDB.USER,
-        "PASSWORD": PostgresDB.PASSWORD,
-        "HOST": PostgresDB.HOST,
-        "PORT": PostgresDB.PORT,
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     }
 }
+# DATABASES = {
+#     "default": {
+#         "ENGINE": PostgresDB.ENGINE,
+#         "NAME": PostgresDB.NAME,
+#         "USER": PostgresDB.USER,
+#         "PASSWORD": PostgresDB.PASSWORD,
+#         "HOST": PostgresDB.HOST,
+#         "PORT": PostgresDB.PORT,
+#     }
+# }
 
 # CACHES = {
 #     "default": {
@@ -189,14 +189,17 @@ LOGGING = {
     },
 }
 
-#---------GRAPHENE------------
+# ---- GRAPHENE ----
 
 GRAPHENE = {
     'SCHEMA': 'marketplace.schema.schema'
 }
+
+# ----- ELASTICSEARCH -----
 ELASTICSEARCH_DSL = {
     "default": {"hosts": "marketplace_search:9200",},
 }
 
+# ---- CORS HEADERS ----
 CORS_ORIGIN_ALLOW_ALL = True
 
