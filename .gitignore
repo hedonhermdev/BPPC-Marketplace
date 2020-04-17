@@ -1,5 +1,6 @@
 **/__pycache__/
 *.log
 db.sqlite3
+marketplace/keyconfig.py
 .vim
 marketplace/keyconfig.py
