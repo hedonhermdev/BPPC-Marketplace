@@ -6,6 +6,8 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from django.views.decorators.cache import cache_page
 from django.db import transaction
+from graphene_django.views import GraphQLView
+from rest_framework.views import APIView
 
 from django.contrib.auth.models import User
 from main.models import Profile, Product
@@ -13,6 +15,10 @@ from main.models import Profile, Product
 import logging
 
 log = logging.getLogger("main")
+
+class PrivateGraphQLView(APIView, GraphQLView):
+    permission_classes = [IsAuthenticated]
+    pass
 
 @api_view(
     ["GET",]

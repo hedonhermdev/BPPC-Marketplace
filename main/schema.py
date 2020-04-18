@@ -1,9 +1,13 @@
 import graphene
+from graphql_jwt.decorators import login_required
 
 from graphene_django.types import DjangoObjectType
-from main.models import Profile, Product
+from main.models import Profile, Product, ProductImage
 from django.contrib.auth.models import User
 
+class UserType(DjangoObjectType):
+    class Meta:
+        model = User
 
 class ProfileType(DjangoObjectType):
     class Meta:
@@ -11,14 +15,15 @@ class ProfileType(DjangoObjectType):
 
 
 class ProductType(DjangoObjectType):
+
     class Meta:
         model = Product
 
 
-class UserType(DjangoObjectType):
-    class Meta:
-        model = User
 
+class ProductImageType(DjangoObjectType):
+    class Meta:
+        model = ProductImage
 
 class Query(object):
     product = graphene.Field(ProductType, id=graphene.Int(), name=graphene.String())
@@ -26,12 +31,15 @@ class Query(object):
     profile = graphene.Field(ProfileType, id=graphene.Int(), name=graphene.String())
     all_profiles = graphene.List(ProfileType)
 
+    @login_required
     def resolve_all_products(self, info, **kwargs):
         return Product.objects.all()
 
+    @login_required
     def resolve_all_profiles(self, info, **kwargs):
         return Profile.objects.all()
-
+    
+    @login_required
     def resolve_product(self, info, **kwargs):
         id = kwargs.get("id")
 
@@ -39,7 +47,8 @@ class Query(object):
             return Product.objects.get(pk=id)
 
         return None
-
+    
+    @login_required
     def resolve_profile(self, info, **kwargs):
         id = kwargs.get("id")
 
@@ -77,6 +86,7 @@ class CreateProduct(graphene.Mutation):
     ok = graphene.Boolean()
     product = graphene.Field(ProductType)
 
+    @login_required
     @staticmethod
     def mutate(root, info, input=None):
         ok = True
@@ -96,6 +106,7 @@ class UpdateProduct(graphene.Mutation):
     ok = graphene.Boolean()
     product = graphene.Field(ProductType)
 
+    @login_required
     @staticmethod
     def mutate(root, info, id, input=None):
         ok = False
@@ -106,6 +117,7 @@ class UpdateProduct(graphene.Mutation):
             product_instance.description = input.description
             product_instance.category = input.category
             product_instance.price = input.price
+            product_instance.sold = input.sold
             product_instance.save()
             return UpdateProduct(ok=ok, product=product_instance)
         return UpdateProduct(ok=ok, product=None)
@@ -118,6 +130,7 @@ class CreateProfile(graphene.Mutation):
     ok = graphene.Boolean()
     profile = graphene.Field(ProfileType)
 
+    @login_required
     @staticmethod
     def mutate(root, info, input=None):
         ok = True
@@ -137,6 +150,7 @@ class UpdateProfile(graphene.Mutation):
     ok = graphene.Boolean()
     profile = graphene.Field(ProfileType)
 
+    @login_required
     @staticmethod
     def mutate(root, info, id, input=None):
         ok = False
