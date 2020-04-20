@@ -39,7 +39,6 @@ def get_products(request):
 @transaction.atomic
 def add_product(request):
     data = request.data
-    product = Product()
     if data["price"] is None:
         return Response(
             {"error": "Product should have a Price."},
@@ -47,12 +46,15 @@ def add_product(request):
         )
     else:
         validated_price = data["price"]
+    
+    product = Product(price=validated_price)
 
     product.seller = request.user
-    product.price = validated_price
-    product.interested_buyers = data["interested_buyers"]
-    product.sold = data["sold"]
+    product.sold = False
     product.is_ticket = data["is_ticket"]
+    product.name = data["name"]
+    product.description = data["description"]
+    product.category = data["category"]
     product.save()
 
     return Response(product.to_dict(), status=status.HTTP_201_CREATED)

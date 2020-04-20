@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     "main",
     "rest_framework",
     'graphene_django',
-    "django_elasticsearch_dsl",
     "corsheaders",
 ]
 
@@ -203,9 +202,9 @@ GRAPHENE = {
 }
 
 # ----- ELASTICSEARCH -----
-ELASTICSEARCH_DSL = {
-    "default": {"hosts": "marketplace_search:9200",},
-}
+# ELASTICSEARCH_DSL = {
+#     "default": {"hosts": "marketplace_search:9200",},
+# }
 
 # ---- CORS HEADERS ----
 CORS_ORIGIN_ALLOW_ALL = True
