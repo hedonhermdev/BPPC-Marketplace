@@ -68,6 +68,7 @@ class ProductInput(graphene.InputObjectType):
     category = graphene.String()
     is_ticket = graphene.Boolean()
     created = graphene.DateTime()
+    seller = ProductType()
 
 
 class ProfileInput(graphene.InputObjectType):
@@ -87,10 +88,9 @@ class CreateProduct(graphene.Mutation):
     product = graphene.Field(ProductType)
 
     @login_required
-    @staticmethod
     def mutate(root, info, input=None):
         ok = True
-        product_instance = Product.objects.create()
+        product_instance = Product()
         product_instance.base_price = input.base_price
         product_instance.name = input.name
         product_instance.description = input.description

@@ -142,7 +142,7 @@ class Product(models.Model):
         return {
             "pk": self.pk,
             "seller": self.seller.pk,
-            "price": self.price,
+            "base_price": self.base_price,
             "description": self.description,
             "interested_buyers": [
                 i.profile.to_compact_dict() for i in self.interested_buyers.all()
