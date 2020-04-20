@@ -1,10 +1,11 @@
-from django.db import models
-from django.contrib.auth.models import User
-from django.utils import timezone
-from django.dispatch import receiver
-from django.db.models.signals import post_save
-from PIL import Image
 import os
+
+from django.contrib.auth.models import User
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils import timezone
+from PIL import Image
 
 HOSTEL_CHOICES = (
     ("SR", "SR Bhavan"),
@@ -109,7 +110,7 @@ class RateUsers(models.Model):
 
 
 class ProductManager(models.Manager):
-    def tickets():
+    def tickets(self):
         return super(ProductManager, self).get_query_set().filter(is_ticket=True)
 
 
@@ -118,7 +119,7 @@ class Product(models.Model):
         User, related_name="my_items", on_delete=models.CASCADE, null=True, blank=True
     )
     name = models.CharField(max_length=60)
-    price = models.IntegerField(blank=False, null=False)
+    base_price = models.IntegerField(blank=False, null=False)
     description = models.CharField(max_length=300)
     category = models.CharField(choices=CATEGORY_CHOICES, max_length=4, null=True)
     interested_buyers = models.ManyToManyField(User, blank=True)
@@ -168,3 +169,19 @@ class ProductImage(models.Model):
             new_size = (200, 200)
             img.thumbnail(new_size)
             img.save(self.image.path)
+
+
+class ProductBid(models.Model):
+    bidder = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="bids")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    message = models.CharField(max_length=400)
+
+    def validate_bid_amount(self):
+        """
+        Check if bid amount is greater than product's base price
+        """
+        assert self.amount > product.base_price
+
+    def __str__(self):
+        return f"ProductBid({self.product.name}, {self.bidder.name}, {self.amount})"
