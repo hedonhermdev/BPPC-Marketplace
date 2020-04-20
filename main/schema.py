@@ -62,12 +62,13 @@ class Query(object):
 class ProductInput(graphene.InputObjectType):
     id = graphene.ID()
     name = graphene.String()
-    price = graphene.Int(required=True)
+    base_price = graphene.Int(required=True)
     description = graphene.String()
     sold = graphene.Boolean()
     category = graphene.String()
     is_ticket = graphene.Boolean()
     created = graphene.DateTime()
+    seller = ProductType()
 
 
 class ProfileInput(graphene.InputObjectType):
@@ -87,10 +88,10 @@ class CreateProduct(graphene.Mutation):
     product = graphene.Field(ProductType)
 
     @login_required
-    @staticmethod
     def mutate(root, info, input=None):
         ok = True
-        product_instance = Product(price=input.price)
+        product_instance = Product()
+        product_instance.base_price = input.base_price
         product_instance.name = input.name
         product_instance.description = input.description
         product_instance.category = input.category
@@ -116,7 +117,7 @@ class UpdateProduct(graphene.Mutation):
             product_instance.name = input.name
             product_instance.description = input.description
             product_instance.category = input.category
-            product_instance.price = input.price
+            product_instance.base_price = input.base_price
             product_instance.sold = input.sold
             product_instance.save()
             return UpdateProduct(ok=ok, product=product_instance)
