@@ -111,7 +111,7 @@ class RateUsers(models.Model):
 
 class ProductManager(models.Manager):
     def tickets(self):
-        return super(ProductManager, self).get_query_set().filter(is_ticket=True)
+        return self.filter(is_ticket=True)
 
 
 class Product(models.Model):
@@ -135,8 +135,7 @@ class Product(models.Model):
         blank=True,
     )
 
-    retrieve = ProductManager()
-    objects = models.Manager()
+    objects = ProductManager()
 
     def to_dict(self):
         return {
@@ -185,3 +184,20 @@ class ProductBid(models.Model):
 
     def __str__(self):
         return f"ProductBid({self.product.name}, {self.bidder.name}, {self.amount})"
+
+
+class QuesAndAnswer(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="questions")
+    question = models.CharField(max_length=600)
+    answer = models.CharField(max_length=600)
+    asked_by = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="my_questions")
+    is_answered = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        if self.answer is not None:
+            self.in_answered = True
+
+        super().save()
+
+    def __str__(self):
+        return f"Question({self.question}), Product({self.product.name}), Asked by({self.asked_by.name})"
