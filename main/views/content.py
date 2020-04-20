@@ -10,15 +10,11 @@ from graphene_django.views import GraphQLView
 from rest_framework.views import APIView
 
 from django.contrib.auth.models import User
-from main.models import Profile, Product
+from main.models import Profile, Product, RateUsers
 
 import logging
 
 log = logging.getLogger("main")
-
-class PrivateGraphQLView(APIView, GraphQLView):
-    permission_classes = [IsAuthenticated]
-    pass
 
 @api_view(
     ["GET",]
@@ -39,17 +35,17 @@ def get_products(request):
 @transaction.atomic
 def add_product(request):
     data = request.data
-    if data["price"] is None:
+    if data["base_price"] is None:
         return Response(
             {"error": "Product should have a Price."},
             status=status.HTTP_400_BAD_REQUEST,
         )
     else:
-        validated_price = data["price"]
+        validated_price = data["base_price"]
     
-    product = Product(price=validated_price)
+    product = Product(base_price=validated_price)
 
-    product.seller = request.user
+    product.seller = request.user.profile
     product.sold = False
     product.is_ticket = data["is_ticket"]
     product.name = data["name"]
@@ -94,17 +90,27 @@ def get_profile(request, id):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def rate_user(request):
+def rate_user(request,id):
     data = request.data
     if data["rating"] is None:
         return Response(
             {"error": "seller is not rated."}, status=status.HTTP_400_BAD_REQUEST
         )
+    else :
+        rating = data["rating"]
+    
+    rating_for = Profile.objects.get(pk=id)
+    rated_by = request.user.profile
+    rating_record = RateUsers()
+    rating_record.rating_for = rating_for
+    rating_record.rated_by = rated_by
+    rating_record.rating = rating
 
-    RateUsers(
-        rating_for=data["seller"], rated_by=request.user, rating=data["rating"]
-    ).save()
-    Profile.objects.filter(user=data["seller"]).save()
+    rating_record.save()
+    rating_for.save()
+    rated_by.save()
+    
+    return Response(rating_record.to_dict(), status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -124,16 +130,16 @@ def search_product(request):
 @permission_classes([IsAuthenticated])
 @cache_page(60 * 5)
 def interested_buyers(request, id):
-    interested = request.data["interested_buyer"]
+    interested = request.user.profile
     product = Product.objects.get(pk=id)
-    if interested_buyer in product.interested_buyers.all():
+    if interested in product.interested_buyers.all():
         product.interested_buyers.remove(interested)
     else:
         product.interested_buyers.add(interested)
     return Response(product.to_dict(), status=status.HTTP_201_CREATED)
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def sell_product(request, id):
     try:
@@ -156,16 +162,16 @@ def sell_product(request, id):
 @cache_page(60 * 10)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def user_products(request, id):
+def user_products(request):
     try:
-        required_user = User.objects.get(pk=id)
+        required_profile = request.user.profile
     except User.DoesNotExist:
         return Response(
             {"error": "No Such User Exist"}, status=status.HTTP_404_NOT_FOUND
         )
 
-    my_products = [p.to_dict() for p in Product.objects.filter(seller_id=id)]
-    return Response(my_products, status=status.HTTP_200_OK)
+    my_products = [p.to_dict() for p in required_profile.my_items.all()]
+    return Response({"products":my_products}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])

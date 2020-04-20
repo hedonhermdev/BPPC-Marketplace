@@ -43,8 +43,7 @@ class Profile(models.Model):
         """
         always update the rating of user
         """
-        user = self.user
-        raters = user.ratings_recieved.all()
+        raters = self.ratings_recieved.all()
 
         rate_points = 0
         no_of_ratings = 0
@@ -98,16 +97,23 @@ def update_profile(sender, instance, **kwargs):
 
 class RateUsers(models.Model):
     rating_for = models.ForeignKey(
-        User, related_name="ratings_recieved", on_delete=models.PROTECT
+        Profile, related_name="ratings_recieved", on_delete=models.PROTECT
     )
     rated_by = models.ForeignKey(
-        User, related_name="rating_given", on_delete=models.PROTECT
+        Profile, related_name="rating_given", on_delete=models.PROTECT
     )
     rating = models.IntegerField()
 
     def __str__(self):
         return self.rating_for.username
 
+    def to_dict(self):
+        return {
+            "pk": self.pk,
+            "rated_by": self.rated_by.name,
+            "rating_for": self.rating_for.name,
+            "rating": self.rating
+        }
 
 class ProductManager(models.Manager):
     def tickets(self):
@@ -116,19 +122,19 @@ class ProductManager(models.Manager):
 
 class Product(models.Model):
     seller = models.ForeignKey(
-        User, related_name="my_items", on_delete=models.CASCADE, null=True, blank=True
+        Profile, related_name="my_items", on_delete=models.CASCADE, null=True, blank=True
     )
     name = models.CharField(max_length=60)
     base_price = models.IntegerField(blank=False, null=False)
     description = models.CharField(max_length=300)
     category = models.CharField(choices=CATEGORY_CHOICES, max_length=4, null=True)
-    interested_buyers = models.ManyToManyField(User, blank=True)
+    interested_buyers = models.ManyToManyField(Profile, blank=True)
     sold = models.BooleanField(default=False)
     is_ticket = models.BooleanField(default=False)
     created = models.DateTimeField(default=timezone.now)
 
     reported_by = models.ForeignKey(
-        User,
+        Profile,
         related_name="products_reported",
         on_delete=models.PROTECT,
         null=True,
@@ -141,10 +147,12 @@ class Product(models.Model):
         return {
             "pk": self.pk,
             "seller": self.seller.pk,
+            "name": self.name,
+            "created": self.created,
             "base_price": self.base_price,
             "description": self.description,
             "interested_buyers": [
-                i.profile.to_compact_dict() for i in self.interested_buyers.all()
+                p.to_compact_dict() for p in self.interested_buyers.all()
             ],
             "sold": self.sold,
             "is_ticket": self.is_ticket,
@@ -189,15 +197,9 @@ class ProductBid(models.Model):
 class QuesAndAnswer(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="questions")
     question = models.CharField(max_length=600)
-    answer = models.CharField(max_length=600)
+    answer = models.CharField(max_length=600,blank=True)
     asked_by = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="my_questions")
-    is_answered = models.BooleanField(default=True)
-
-    def save(self, *args, **kwargs):
-        if self.answer is not None:
-            self.in_answered = True
-
-        super().save()
+    is_answered = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Question({self.question}), Product({self.product.name}), Asked by({self.asked_by.name})"

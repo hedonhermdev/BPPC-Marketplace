@@ -87,7 +87,7 @@ class CreateProduct(graphene.Mutation):
     ok = graphene.Boolean()
     product = graphene.Field(ProductType)
 
-    @login_required
+    #@login_required
     def mutate(root, info, input=None):
         ok = True
         product_instance = Product()
@@ -131,7 +131,7 @@ class CreateProfile(graphene.Mutation):
     ok = graphene.Boolean()
     profile = graphene.Field(ProfileType)
 
-    @login_required
+    #@login_required
     @staticmethod
     def mutate(root, info, input=None):
         ok = True
