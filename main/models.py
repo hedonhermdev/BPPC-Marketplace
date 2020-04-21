@@ -170,7 +170,6 @@ class Product(models.Model):
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     image = models.ImageField(upload_to="product.pics")
-    # Set the upload_to = "media_url/path"
 
     def save(self, *args, **kwargs):
         self.image.name = str(os.urandom(8)) + ".png"
