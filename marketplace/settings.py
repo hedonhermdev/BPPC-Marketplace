@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-from marketplace.keyconfig import Secrets, Elasticsearch, PostgresDB
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,12 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = Secrets.SECRET_KEY
+SECRET_KEY = "ApplePenPineApplePen"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", Secrets.HOST_DOMAIN, Secrets.HOST_IP, Secrets.HOST_RESOLVER]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -41,7 +40,6 @@ INSTALLED_APPS = [
     "main",
     "rest_framework",
     'graphene_django',
-    "django_elasticsearch_dsl",
     "corsheaders",
 ]
 
@@ -108,6 +106,11 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
+AUTHENTICATION_BACKENDS = [
+    'graphql_jwt.backends.JSONWebTokenBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -135,8 +138,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = "/staticfiles/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_URL = "/static/"
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "static"),
+)
 
 
 REST_FRAMEWORK = {
@@ -192,14 +197,21 @@ LOGGING = {
 # ---- GRAPHENE ----
 
 GRAPHENE = {
-    'SCHEMA': 'marketplace.schema.schema'
+    'SCHEMA': 'marketplace.schema.schema',
+    'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+    ],
 }
 
 # ----- ELASTICSEARCH -----
-ELASTICSEARCH_DSL = {
-    "default": {"hosts": "marketplace_search:9200",},
-}
+# ELASTICSEARCH_DSL = {
+#     "default": {"hosts": "marketplace_search:9200",},
+# }
 
 # ---- CORS HEADERS ----
 CORS_ORIGIN_ALLOW_ALL = True
+
+GRAPHQL_JWT = {
+    'JWT_ALLOW_ARGUMENT':True,
+}
 
