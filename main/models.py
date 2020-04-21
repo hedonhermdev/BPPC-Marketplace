@@ -112,8 +112,9 @@ class RateUsers(models.Model):
             "pk": self.pk,
             "rated_by": self.rated_by.name,
             "rating_for": self.rating_for.name,
-            "rating": self.rating
+            "rating": self.rating,
         }
+
 
 class ProductManager(models.Manager):
     def tickets(self):
@@ -122,7 +123,11 @@ class ProductManager(models.Manager):
 
 class Product(models.Model):
     seller = models.ForeignKey(
-        Profile, related_name="my_items", on_delete=models.CASCADE, null=True, blank=True
+        Profile,
+        related_name="my_items",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     name = models.CharField(max_length=60)
     base_price = models.IntegerField(blank=False, null=False)
@@ -168,14 +173,15 @@ class ProductImage(models.Model):
     # Set the upload_to = "media_url/path"
 
     def save(self, *args, **kwargs):
-        img = os.urandom(8)
-        super().save(*args, **kwargs)
+        self.image.name = str(os.urandom(8)) + ".png"
+        img = Image.open(self.image)
 
-        img = Image.open(self.image.path)
-        if img.height > 300 or img.width > 300:
-            new_size = (200, 200)
+        if img.height > 1024 or img.width > 1024:
+            new_size = (1024, 1024)
             img.thumbnail(new_size)
             img.save(self.image.path)
+
+        super().save(*args, **kwargs)
 
 
 class ProductBid(models.Model):
@@ -195,10 +201,14 @@ class ProductBid(models.Model):
 
 
 class QuesAndAnswer(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="questions")
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="questions"
+    )
     question = models.CharField(max_length=600)
-    answer = models.CharField(max_length=600,blank=True)
-    asked_by = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="my_questions")
+    answer = models.CharField(max_length=600, blank=True)
+    asked_by = models.ForeignKey(
+        Profile, on_delete=models.CASCADE, related_name="my_questions"
+    )
     is_answered = models.BooleanField(default=False)
 
     def __str__(self):

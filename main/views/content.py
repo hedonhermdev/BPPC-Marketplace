@@ -16,6 +16,7 @@ import logging
 
 log = logging.getLogger("main")
 
+
 @api_view(
     ["GET",]
 )
@@ -42,7 +43,7 @@ def add_product(request):
         )
     else:
         validated_price = data["base_price"]
-    
+
     product = Product(base_price=validated_price)
 
     product.seller = request.user.profile
@@ -90,15 +91,15 @@ def get_profile(request, id):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def rate_user(request,id):
+def rate_user(request, id):
     data = request.data
     if data["rating"] is None:
         return Response(
             {"error": "seller is not rated."}, status=status.HTTP_400_BAD_REQUEST
         )
-    else :
+    else:
         rating = data["rating"]
-    
+
     rating_for = Profile.objects.get(pk=id)
     rated_by = request.user.profile
     rating_record = RateUsers()
@@ -109,7 +110,7 @@ def rate_user(request,id):
     rating_record.save()
     rating_for.save()
     rated_by.save()
-    
+
     return Response(rating_record.to_dict(), status=status.HTTP_200_OK)
 
 
@@ -171,7 +172,7 @@ def user_products(request):
         )
 
     my_products = [p.to_dict() for p in required_profile.my_items.all()]
-    return Response({"products":my_products}, status=status.HTTP_200_OK)
+    return Response({"products": my_products}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
