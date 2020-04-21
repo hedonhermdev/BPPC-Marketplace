@@ -15,4 +15,4 @@ class PostgresDB:
 
 
 class Elasticsearch:
-    HOSTS = "marketplace_search:9201"
+    HOSTS = "marketplace_search:9200"

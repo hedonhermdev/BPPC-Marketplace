@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-
+from marketplace.keyconfig import Elasticsearch, PostgresDB
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "main",
     "rest_framework",
     'graphene_django',
+    "django_elasticsearch_dsl",
     "corsheaders",
 ]
 
@@ -78,22 +79,23 @@ WSGI_APPLICATION = "marketplace.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    }
-}
 # DATABASES = {
 #     "default": {
-#         "ENGINE": PostgresDB.ENGINE,
-#         "NAME": PostgresDB.NAME,
-#         "USER": PostgresDB.USER,
-#         "PASSWORD": PostgresDB.PASSWORD,
-#         "HOST": PostgresDB.HOST,
-#         "PORT": PostgresDB.PORT,
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
 #     }
 # }
+
+DATABASES = {
+    "default": {
+        "ENGINE": PostgresDB.ENGINE,
+        "NAME": PostgresDB.NAME,
+        "USER": PostgresDB.USER,
+        "PASSWORD": PostgresDB.PASSWORD,
+        "HOST": PostgresDB.HOST,
+        "PORT": PostgresDB.PORT,
+    }
+}
 
 # CACHES = {
 #     "default": {
@@ -204,9 +206,11 @@ GRAPHENE = {
 }
 
 # ----- ELASTICSEARCH -----
-# ELASTICSEARCH_DSL = {
-#     "default": {"hosts": "marketplace_search:9200",},
-# }
+ELASTICSEARCH_DSL = {
+    "default": {
+        "hosts": Elasticsearch.HOSTS
+    }
+}
 
 # ---- CORS HEADERS ----
 CORS_ORIGIN_ALLOW_ALL = True
