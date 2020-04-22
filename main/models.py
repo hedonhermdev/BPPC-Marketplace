@@ -2,9 +2,8 @@ import os
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from django.utils import timezone
 from PIL import Image
 
 HOSTEL_CHOICES = (
@@ -27,37 +26,18 @@ CATEGORY_CHOICES = (
 
 # Create your models here.
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     name = models.CharField(max_length=100)
+    profile_picture = models.ForeignKey('ImageModel', on_delete=models.SET_NULL, null=True)
     hostel = models.CharField(choices=HOSTEL_CHOICES, max_length=2)
     room_no = models.PositiveIntegerField(blank=True, null=True)
     contact_no = models.PositiveIntegerField(blank=True, null=True)
     rating = models.DecimalField(max_digits=2, decimal_places=1, null=True, blank=True)
-    no_of_ratings = models.PositiveIntegerField(default=0)
+    num_ratings = models.IntegerField(default=0)
     email = models.EmailField()
 
     def hostel_to_string(self):
         return getattr(dict(HOSTEL_CHOICES), self.hostel, "")
-
-    def save(self, *args, **kwargs):
-        """
-        always update the rating of user
-        """
-        raters = self.ratings_recieved.all()
-
-        rate_points = 0
-        no_of_ratings = 0
-        rating = 0
-        for r in raters:
-            rate_points = r.rating + rate_points
-            no_of_ratings = no_of_ratings + 1
-
-        self.no_of_ratings = no_of_ratings
-        if no_of_ratings != 0:
-            rating = rate_points / no_of_ratings
-        self.rating = round(rating, 1)
-
-        super().save()
 
     def to_dict(self):
         return {
@@ -70,6 +50,7 @@ class Profile(models.Model):
             "rating": self.rating,
             "no_of_rating": self.no_of_ratings,
             "email": self.email,
+            "profile_picture": self.profile_picture.url,
         }
 
     def to_compact_dict(self):
@@ -84,23 +65,24 @@ class Profile(models.Model):
 
 
 @receiver(post_save, sender=User)
-def create_profile(sender, instance, created, **kwargs):
+def create_or_update_profile(sender, instance, created, **kwargs):
+    """
+    When a new user is created, create a profile for it. 
+    When the user is updated, update its profile.
+    """
     if created:
         Profile.objects.create(user=instance)
-        instance.profile.save()
-
-
-@receiver(post_save, sender=User)
-def update_profile(sender, instance, **kwargs):
     instance.profile.save()
 
 
-class RateUsers(models.Model):
+
+
+class ProfileRating(models.Model):
     rating_for = models.ForeignKey(
-        Profile, related_name="ratings_recieved", on_delete=models.PROTECT
+        Profile, related_name="ratings_recieved", on_delete=models.CASCADE
     )
     rated_by = models.ForeignKey(
-        Profile, related_name="rating_given", on_delete=models.PROTECT
+        Profile, related_name="rating_given", on_delete=models.CASCADE
     )
     rating = models.IntegerField()
 
@@ -116,12 +98,32 @@ class RateUsers(models.Model):
         }
 
 
+@receiver(pre_save, sender=ProfileRating)
+def update_profile_rating(sender, instance, created, **kwargs):
+    """
+    Update the average rating of a profile when a new rating is given to the profile.
+    """
+    if created:
+        profile = instance.rating_for
+        num_ratings = profile.num_ratings
+        profile.rating = (profile.rating * num_ratings + instance.rating) / (num_ratings + 1)
+        profile.save()
+
+class Category(models.Model):
+    name = models.CharField(max_length=20)
+    
+    def __str__(self):
+        return f"Category({self.name})"
+
+
 class ProductManager(models.Manager):
     def tickets(self):
         return self.filter(is_ticket=True)
 
 
 class Product(models.Model):
+    name = models.CharField(max_length=60)
+    images = models.ManyToManyField('ImageModel', symmetrical=False, null=True, blank=True)
     seller = models.ForeignKey(
         Profile,
         related_name="my_items",
@@ -129,22 +131,14 @@ class Product(models.Model):
         null=True,
         blank=True,
     )
-    name = models.CharField(max_length=60)
     base_price = models.IntegerField(blank=False, null=False)
     description = models.CharField(max_length=300)
-    category = models.CharField(choices=CATEGORY_CHOICES, max_length=4, null=True)
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True)
     interested_buyers = models.ManyToManyField(Profile, blank=True)
     sold = models.BooleanField(default=False)
     is_ticket = models.BooleanField(default=False)
-    created = models.DateTimeField(default=timezone.now)
-
-    reported_by = models.ForeignKey(
-        Profile,
-        related_name="products_reported",
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-    )
+    created = models.DateTimeField(auto_now_add=True)
+    visible = models.BooleanField(default=True)
 
     objects = ProductManager()
 
@@ -161,26 +155,20 @@ class Product(models.Model):
             ],
             "sold": self.sold,
             "is_ticket": self.is_ticket,
+            "images": [im.url for im in self.images]
         }
 
     def __str__(self):
         return self.name
 
 
-class ProductImage(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to="product.pics")
+class ImageModel(models.Model):
+    """
+        Utility model for product images and profile photos.
+    """
+    image = models.ImageField(upload_to="images/")
+    thumbnail = models.ImageField(upload_to="thumbs/")
 
-    def save(self, *args, **kwargs):
-        self.image.name = str(os.urandom(8)) + ".png"
-        img = Image.open(self.image)
-
-        if img.height > 1024 or img.width > 1024:
-            new_size = (1024, 1024)
-            img.thumbnail(new_size)
-            img.save(self.image.path)
-
-        super().save(*args, **kwargs)
 
 
 class ProductBid(models.Model):
@@ -199,16 +187,39 @@ class ProductBid(models.Model):
         return f"ProductBid({self.product.name}, {self.bidder.name}, {self.amount})"
 
 
-class QuesAndAnswer(models.Model):
+class ProductQnA(models.Model):
+    """
+    Potential buyers can ask questions and the seller can answer.
+    """
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="questions"
     )
     question = models.CharField(max_length=600)
     answer = models.CharField(max_length=600, blank=True)
     asked_by = models.ForeignKey(
-        Profile, on_delete=models.CASCADE, related_name="my_questions"
+        Profile, on_delete=models.CASCADE, related_name="questions"
     )
     is_answered = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Question({self.question}), Product({self.product.name}), Asked by({self.asked_by.name})"
+
+
+class ProductReport(models.Model):
+    product = models.ForeignKey('Product', related_name='reports', on_delete=models.CASCADE)
+    message = models.CharField(max_length=400)
+    reported_by = models.ForeignKey('Profile', on_delete=models.CASCADE)
+
+
+@receiver(pre_save, sender=ProductReport)
+def moderate_product(sender, instance, **kwargs):
+    """
+        Make a product not visible if it has been reported more than 5 times.
+    """
+    # TODO: Implement mechanism to notify moderators.
+    MAX_ALLOWED_REPORTS = 5
+    product = instance.product
+    if product.reports.count() > MAX_ALLOWED_REPORTS:
+        product.visible = False
+        product.save()
+

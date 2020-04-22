@@ -1,9 +1,20 @@
 from django.contrib import admin
-from .models import Product, Profile, RateUsers, QuesAndAnswer, ProductBid, ProductImage
+from main.models import (
+    Profile,
+    Product,
+    ImageModel,
+    ProductBid,
+    ProductQnA,
+    ProfileRating,
+    ProductReport,
+    Category,
+)
 
 admin.site.register(Profile)
-admin.site.register(RateUsers)
 admin.site.register(Product)
-admin.site.register(QuesAndAnswer)
+admin.site.register(ImageModel)
 admin.site.register(ProductBid)
-admin.site.register(ProductImage)
+admin.site.register(ProductQnA)
+admin.site.register(ProfileRating)
+admin.site.register(ProductReport)
+admin.site.register(Category)

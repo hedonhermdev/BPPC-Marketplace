@@ -10,7 +10,7 @@ from graphene_django.views import GraphQLView
 from rest_framework.views import APIView
 
 from django.contrib.auth.models import User
-from main.models import Profile, Product, RateUsers
+from main.models import Profile, Product, ProfileRating
 
 import logging
 
@@ -102,7 +102,7 @@ def rate_user(request, id):
 
     rating_for = Profile.objects.get(pk=id)
     rated_by = request.user.profile
-    rating_record = RateUsers()
+    rating_record = ProfileRating()
     rating_record.rating_for = rating_for
     rating_record.rated_by = rated_by
     rating_record.rating = rating
