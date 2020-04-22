@@ -2,7 +2,7 @@ from django.urls import path
 from .views import content, auth, index
 from django.views.decorators.csrf import csrf_exempt
 from graphene_django.views import GraphQLView
-# from marketplace.schema import schema
+from marketplace.schema import schema
 
 urlpatterns = [
     path("", index.index, name="index"),
@@ -29,7 +29,7 @@ urlpatterns = [
     path(
         "api/my_profile/update_profile/", content.update_profile, name="update-profile"
     ),
-    # path("api/graphql", csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema))),
+    path("api/graphql", csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema))),
     path("auth/authenticate/", auth.authenticate, name="auth-authenticate"),
 
 

@@ -1,14 +1,14 @@
-# import graphene
-# import graphql_jwt
+import graphene
+import graphql_jwt
 
-# import main.schema
-
-
-# class Query(main.schema.Query, graphene.ObjectType):
-#     pass
+import main.schema
 
 
-# class Mutation(main.schema.Mutation, graphene.ObjectType):
-#     pass
+class Query(main.schema.Query, graphene.ObjectType):
+    pass
 
-# schema = graphene.Schema(query=Query, mutation=Mutation)
+
+class Mutation(main.schema.Mutation, graphene.ObjectType):
+    pass
+
+schema = graphene.Schema(query=Query, mutation=Mutation)

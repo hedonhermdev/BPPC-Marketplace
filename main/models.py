@@ -28,7 +28,6 @@ CATEGORY_CHOICES = (
 
 # Create your models here.
 class Profile(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     name = models.CharField(max_length=100)
     profile_picture = models.ForeignKey('ImageModel', on_delete=models.SET_NULL, null=True)
@@ -39,13 +38,18 @@ class Profile(models.Model):
     num_ratings = models.IntegerField(default=0)
     email = models.EmailField()
 
-    def hostel_to_string(self):
+    @property
+    def hostel_name(self):
         return getattr(dict(HOSTEL_CHOICES), self.hostel, "")
+
+    @property
+    def profile_picture_url(self):
+        return self.profile_picture.url
 
     def to_dict(self):
         return {
-            "pk": self.pk,
-            "user": self.user.pk,
+            "id": self.id,
+            "user": self.user.username,
             "name": self.name,
             "hostel": self.hostel,
             "room_no": self.room_no,
@@ -64,7 +68,7 @@ class Profile(models.Model):
         }
 
     def __str__(self):
-        return self.user.username
+        return f"Profile({self.user.username})"
 
 
 @receiver(post_save, sender=User)
@@ -123,12 +127,11 @@ class ProductManager(models.Manager):
 
 
 class Product(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=60)
     images = models.ManyToManyField('ImageModel', symmetrical=False, blank=True)
     seller = models.ForeignKey(
         Profile,
-        related_name="my_items",
+        related_name="products",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -136,7 +139,6 @@ class Product(models.Model):
     base_price = models.IntegerField(blank=False, null=False)
     description = models.CharField(max_length=300)
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True)
-    interested_buyers = models.ManyToManyField(Profile, blank=True)
     sold = models.BooleanField(default=False)
     is_ticket = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
