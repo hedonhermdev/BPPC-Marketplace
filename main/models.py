@@ -6,6 +6,8 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from PIL import Image
 
+import uuid
+
 HOSTEL_CHOICES = (
     ("SR", "SR Bhavan"),
     ("RP", "Rana Pratap Bhavan"),
@@ -26,13 +28,14 @@ CATEGORY_CHOICES = (
 
 # Create your models here.
 class Profile(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     name = models.CharField(max_length=100)
     profile_picture = models.ForeignKey('ImageModel', on_delete=models.SET_NULL, null=True)
     hostel = models.CharField(choices=HOSTEL_CHOICES, max_length=2)
     room_no = models.PositiveIntegerField(blank=True, null=True)
     contact_no = models.PositiveIntegerField(blank=True, null=True)
-    rating = models.DecimalField(max_digits=2, decimal_places=1, null=True, blank=True)
+    rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
     num_ratings = models.IntegerField(default=0)
     email = models.EmailField()
 
@@ -86,9 +89,6 @@ class ProfileRating(models.Model):
     )
     rating = models.IntegerField()
 
-    def __str__(self):
-        return self.rating_for.username
-
     def to_dict(self):
         return {
             "pk": self.pk,
@@ -98,7 +98,7 @@ class ProfileRating(models.Model):
         }
 
 
-@receiver(pre_save, sender=ProfileRating)
+@receiver(post_save, sender=ProfileRating)
 def update_profile_rating(sender, instance, created, **kwargs):
     """
     Update the average rating of a profile when a new rating is given to the profile.
@@ -107,6 +107,7 @@ def update_profile_rating(sender, instance, created, **kwargs):
         profile = instance.rating_for
         num_ratings = profile.num_ratings
         profile.rating = (profile.rating * num_ratings + instance.rating) / (num_ratings + 1)
+        profile.num_ratings += 1
         profile.save()
 
 class Category(models.Model):
@@ -122,8 +123,9 @@ class ProductManager(models.Manager):
 
 
 class Product(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=60)
-    images = models.ManyToManyField('ImageModel', symmetrical=False, null=True, blank=True)
+    images = models.ManyToManyField('ImageModel', symmetrical=False, blank=True)
     seller = models.ForeignKey(
         Profile,
         related_name="my_items",
@@ -211,7 +213,7 @@ class ProductReport(models.Model):
     reported_by = models.ForeignKey('Profile', on_delete=models.CASCADE)
 
 
-@receiver(pre_save, sender=ProductReport)
+@receiver(post_save, sender=ProductReport)
 def moderate_product(sender, instance, **kwargs):
     """
         Make a product not visible if it has been reported more than 5 times.
