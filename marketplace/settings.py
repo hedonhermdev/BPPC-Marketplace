@@ -109,8 +109,8 @@ DATABASES = {
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
 AUTHENTICATION_BACKENDS = [
-    'graphql_jwt.backends.JSONWebTokenBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    "graphql_jwt.backends.JSONWebTokenBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -141,9 +141,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "static"),
-)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
 
 
 REST_FRAMEWORK = {
@@ -160,7 +160,7 @@ JWT_AUTH = {
     "JWT_VERIFY_EXPIRATION": False,
 }
 
-#---------LOGGING----------
+# ---------LOGGING----------
 
 LOGGING = {
     "version": 1,
@@ -199,10 +199,8 @@ LOGGING = {
 # ---- GRAPHENE ----
 
 GRAPHENE = {
-    'SCHEMA': 'marketplace.schema.schema',
-    'MIDDLEWARE': [
-        'graphql_jwt.middleware.JSONWebTokenMiddleware',
-    ],
+    "SCHEMA": "marketplace.schema.schema",
+    "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware",],
 }
 
 # ----- ELASTICSEARCH -----
@@ -216,6 +214,6 @@ ELASTICSEARCH_DSL = {
 CORS_ORIGIN_ALLOW_ALL = True
 
 GRAPHQL_JWT = {
-    'JWT_ALLOW_ARGUMENT':True,
+    "JWT_ALLOW_ARGUMENT": True,
 }
 
