@@ -36,8 +36,8 @@ class Product(DjangoObjectType):
     reports = graphene.List(ProductReport)
     
     @staticmethod
-    def resolve_images(self):
-        return [i.image.url for i in self.images()]
+    def resolve_images(self, info, **kwargs):
+        return [i.image.url for i in self.images.all()]
     
     @staticmethod
     def resolve_bids(self, info, **kwargs):

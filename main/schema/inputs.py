@@ -6,6 +6,5 @@ class ProductInput(graphene.InputObjectType):
     base_price = graphene.Int()
     description = graphene.String()
     sold = graphene.Boolean()
-    category = graphene.Int()
-    seller = graphene.ID()
+    category_id = graphene.Int()
 

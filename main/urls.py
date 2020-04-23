@@ -30,6 +30,7 @@ urlpatterns = [
         "api/my_profile/update_profile/", content.update_profile, name="update-profile"
     ),
     path("api/graphql", csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema))),
+
     path("auth/authenticate/", auth.authenticate, name="auth-authenticate"),
 
 
