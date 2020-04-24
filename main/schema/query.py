@@ -13,8 +13,8 @@ class Query:
     all_products = graphene.List(Product)
     all_profiles = graphene.List(Profile)
     category = graphene.List(Category)
-    product = graphene.Field(Product)
-    profile = graphene.Field(Profile)
+    product = graphene.Field(Product, id=graphene.Int())
+    profile = graphene.Field(Profile, id=graphene.Int())
 
     def resolve_all_categories(self, info, **kwargs):
         return models.Category.objects.all()

@@ -35,3 +35,30 @@ def update_product(product, **kwargs):
     product.save()
 
     return product
+
+def create_profile(user, **kwargs):
+
+    profile = models.Profile()
+    profile.user = user
+    profile.name = kwargs.get('name')
+    profile.hostel = kwargs.get('hostel')
+    profile.room_no = kwargs.get('room_no')
+    profile.contact_no = kwargs.get('contact_no')
+    profile.email = kwargs.get('email')
+
+    profile.save()
+
+    return profile
+
+def upadate_profile(profile, **kwargs):
+    
+    fields = ['name', 'hostel', 'room_no', 'contact_no', 'email']
+
+    for field in fields:
+        update = kwargs.get(field)
+        if update is not None:
+            setattr(profile, field, update)
+
+    profile.save()
+
+    return profile
