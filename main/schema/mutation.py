@@ -2,8 +2,8 @@ import graphene
 from graphql_jwt.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
-from main.schema.inputs import ProductInput, ProfileInput
-from main.schema.types import Product, Profile
+from main.schema.inputs import ProductInput, ProfileInput, ProductBidInput
+from main.schema.types import Product, Profile, Wishlist, ProductBid
 from main.schema import utils
 
 from main import models
@@ -105,9 +105,86 @@ class UpdateProfile(MutationPayload, graphene.Mutation):
 
         return UpdateProfile(errors=errors, profile=profile)
 
+
+class UpdateWishlist(MutationPayload, graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    wishlist = graphene.Field(Wishlist)
+
+    @login_required
+    def mutate(root, info, id, input=None):
+        errors = []
+
+        try:
+            product = models.Product.objects.get(id=id)
+        except ObjectDoesNotExist:
+            errors.append(f"Product requested to add, not found ")
+            return UpdateWishlist(errors=errors, wishlist=None)
+        
+        wishlist = info.context.user.profile.wishlist
+        if product in wishlist.products.all():
+            wishlist.products.remove(product)
+        else:
+            wishlist.products.add(product)
+
+        return UpdateWishlist(errors=errors, wishlist=wishlist)
+
+
+class CreateBid(MutationPayload, graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+        input = ProductBidInput()
+
+    bid = graphene.Field(ProductBid)
+
+    @login_required
+    def mutate(root, info, id, input=None):
+        errors = []
+
+        try:
+            product = models.Product.objects.get(id=id)
+        except ObjectDoesNotExist:
+            errors.append(f"Product to bid on, not found")
+            return CreateBid(errors=errors, bid=None)
+
+        profile = info.context.user.profile
+        bid = utils.create_bid(profile, product, **input.__dict__)
+
+        return CreateBid(errors=errors, bid=bid)
+
+
+class UpdateBid(MutationPayload, graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+        input = ProductBidInput()
+
+    bid = graphene.Field(ProductBid)
+
+    @login_required
+    def mutate(root, info, id, input=None):
+        errors = []
+
+        try:
+            bid = models.ProductBid.objects.get(id=id)
+        except ObjectDoesNotExist:
+            errors.append(f"Bid not found")
+            return UpdateBid(errors=errors, bid=None)
+        
+        if (bid.bidder == info.context.user.profile):
+            bid = utils.update_bid(bid, **input.__dict__)
+            return UpdateBid(errors=errors, bid=bid)
+        else:
+            errors.append(f"Only the user can change his bid")
+            return UpdateBid(errors=errors, bid=None)
+
+
 class Mutation:
     create_product = CreateProduct.Field()
     update_product = UpdateProduct.Field()
     create_profile = CreateProfile.Field()
     update_profile = UpdateProfile.Field()
+    update_wishlist = UpdateWishlist.Field()
+    create_bid = CreateBid.Field()
+    update_bid = UpdateBid.Field()
 

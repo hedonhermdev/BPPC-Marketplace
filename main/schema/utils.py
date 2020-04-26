@@ -52,7 +52,7 @@ def create_profile(user, **kwargs):
 
 def upadate_profile(profile, **kwargs):
     
-    fields = ['name', 'hostel', 'room_no', 'contact_no', 'email']
+    fields = ['name', 'hostel', 'room_no', 'contact_no']
 
     for field in fields:
         update = kwargs.get(field)
@@ -62,3 +62,28 @@ def upadate_profile(profile, **kwargs):
     profile.save()
 
     return profile
+
+def create_bid(profile, product, **kwargs):
+
+    bid = models.ProductBid()
+    bid.bidder = profile
+    bid.product = product
+    bid.amount = kwargs.get('amount')
+    bid.message = kwargs.get('message')
+
+    bid.save()
+
+    return bid
+
+def update_bid(bid, **kwargs):
+
+    fields = ['amount', 'message']
+
+    for field in fields:
+        update = kwargs.get(field)
+        if update is not None:
+            setattr(bid, field, update)
+
+    bid.save()
+
+    return bid

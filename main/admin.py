@@ -8,6 +8,7 @@ from main.models import (
     ProfileRating,
     ProductReport,
     Category,
+    Wishlist
 )
 
 admin.site.register(Profile)
@@ -18,3 +19,4 @@ admin.site.register(ProductQnA)
 admin.site.register(ProfileRating)
 admin.site.register(ProductReport)
 admin.site.register(Category)
+admin.site.register(Wishlist)

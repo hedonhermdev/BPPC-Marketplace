@@ -3,7 +3,7 @@ from graphene_django.types import DjangoObjectType, ObjectType
 from main import models
 from main.models import HOSTEL_CHOICES
 
-
+        
 class ProductBid(DjangoObjectType):
     class Meta:
         model = models.ProductBid
@@ -70,6 +70,7 @@ class Profile(DjangoObjectType):
     profile_picture = graphene.String()
     hostel = graphene.String()
     products = graphene.List(Product)
+    bids = graphene.List(ProductBid)
 
     @staticmethod
     def resolve_username(self, info, **kwargs):
@@ -87,3 +88,21 @@ class Profile(DjangoObjectType):
     def resolve_products(self, info, **kwargs):
         return self.products.all()
 
+    @staticmethod
+    def resolve_bids(self, info, **kwargs):
+        return self.bids.all()
+
+class Wishlist(DjangoObjectType):
+    class Meta:
+        model = models.Wishlist
+    
+    profile = graphene.Field(Profile)
+    products = graphene.List(Product)
+
+    @staticmethod
+    def resolve_products(self, info, **kwargs):
+        return self.products.all()
+
+    @staticmethod
+    def resovle_profile(self, info, **kwargs):
+        return self.profile

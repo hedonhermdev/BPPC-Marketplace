@@ -5,7 +5,8 @@ from main import models
 from main.schema.types import (
     Category,
     Profile,
-    Product
+    Product,
+    ProductBid
 )
 
 class Query:
@@ -15,6 +16,8 @@ class Query:
     category = graphene.List(Category)
     product = graphene.Field(Product, id=graphene.Int())
     profile = graphene.Field(Profile, id=graphene.Int())
+    productBid = graphene.List(ProductBid, id=graphene.Int())
+    my_wishlist = graphene.List(Product)
 
     def resolve_all_categories(self, info, **kwargs):
         return models.Category.objects.all()
@@ -64,3 +67,21 @@ class Query:
                 return None
         return None
 
+    def resolve_my_wishlist(self, info, **kwargs):
+        profile = info.context.user.profile
+
+        if profile is not None:
+            return profile.wishlist.products.all()
+
+        return None
+        
+    def resolve_productBid(self, info, **kwargs):
+        id = kwargs.get('id')
+        if id is not None:
+            try:
+                product = models.Product.objects.get(id=id)
+            except ObjectDoesNotExist:
+                return None
+            return product.bids.all()
+
+        return None

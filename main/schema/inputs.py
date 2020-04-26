@@ -14,4 +14,9 @@ class ProfileInput(graphene.InputObjectType):
     hostel = graphene.String()
     room_no = graphene.Int()
     contact_no = graphene.Int()
-    email = graphene.String()
+
+class ProductBidInput(graphene.InputObjectType):
+    id = graphene.ID()
+    amount = graphene.Int()
+    message = graphene.String()
+    

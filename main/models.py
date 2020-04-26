@@ -79,9 +79,9 @@ def create_or_update_profile(sender, instance, created, **kwargs):
     """
     if created:
         Profile.objects.create(user=instance)
+        Wishlist.objects.create(profile=instance.profile)
     instance.profile.save()
-
-
+    
 
 
 class ProfileRating(models.Model):
@@ -165,6 +165,9 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+class Wishlist(models.Model):
+    profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product, related_name='wishlists', symmetrical=False, blank=True)
 
 class ImageModel(models.Model):
     """
@@ -177,7 +180,7 @@ class ImageModel(models.Model):
 
 class ProductBid(models.Model):
     bidder = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="bids")
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="bids")
     amount = models.IntegerField()
     message = models.CharField(max_length=400)
 
