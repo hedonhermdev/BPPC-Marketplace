@@ -1,10 +1,11 @@
 from main import models
 
 
-def create_product(seller, **kwargs):
+def create_product(seller, **kwargs, ):
     """
         Given the attributes of a product and a Profile(seller) instance, create a new product and save it to the database. Utility for the CreateProduct mutation. 
     """
+
     p = models.Product()
     p.seller = seller
     p.name = kwargs.get('name')
@@ -50,7 +51,7 @@ def create_profile(user, **kwargs):
 
     return profile
 
-def upadate_profile(profile, **kwargs):
+def update_profile(profile, **kwargs):
     
     fields = ['name', 'hostel', 'room_no', 'contact_no']
 
@@ -87,3 +88,15 @@ def update_bid(bid, **kwargs):
     bid.save()
 
     return bid
+
+def profile_rating(rating_for, rated_by, rating):
+    """
+    Given the attributes of rating_for(Profile) and rated_by(Profile) instance, create a
+    """
+    rate_profile = models.ProfileRating()
+    rate_profile.rating_for = rating_for
+    rate_profile.rated_by = rated_by
+    rate_profile.rating = rating
+    rate_profile.save()
+
+    return rate_profile

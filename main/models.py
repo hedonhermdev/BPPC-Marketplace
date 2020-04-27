@@ -17,12 +17,12 @@ HOSTEL_CHOICES = (
 )
 
 CATEGORY_CHOICES = (
-    ("STAT", "Stationay"),
-    ("MOVI", "Movie Ticket"),
-    ("GRUB", "Grub Ticket"),
-    ("ELEC", "Electronics"),
-    ("CLOT", "Clothing"),
-    ("OTHR", "Other Utility"),
+    "Stationary",
+    "Movie Ticket",
+    "Grub Ticket",
+    "Electronics",
+    "Clothing",
+    "Other Utility",
 )
 
 
@@ -30,7 +30,7 @@ CATEGORY_CHOICES = (
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     name = models.CharField(max_length=100)
-    profile_picture = models.ForeignKey('ImageModel', on_delete=models.SET_NULL, null=True)
+    profile_picture = models.ForeignKey('ImageModel', on_delete=models.SET_NULL, null=True, blank=True)
     hostel = models.CharField(choices=HOSTEL_CHOICES, max_length=2)
     room_no = models.PositiveIntegerField(blank=True, null=True)
     contact_no = models.PositiveIntegerField(blank=True, null=True)
@@ -55,9 +55,9 @@ class Profile(models.Model):
             "room_no": self.room_no,
             "contact_no": self.contact_no,
             "rating": self.rating,
-            "no_of_rating": self.no_of_ratings,
+            "num_rating": self.num_ratings,
             "email": self.email,
-            "profile_picture": self.profile_picture.url,
+            # "profile_picture": self.profile_picture.url,
         }
 
     def to_compact_dict(self):
@@ -115,7 +115,11 @@ def update_profile_rating(sender, instance, created, **kwargs):
         profile.save()
 
 class Category(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=20, unique=True)
+
+    """
+    All the instances of CATEGORY_CHOICES gets automatically created by migrations file 0014_auto_20200427_1006.py .
+    """
     
     def __str__(self):
         return f"Category({self.name})"
@@ -149,17 +153,14 @@ class Product(models.Model):
     def to_dict(self):
         return {
             "pk": self.pk,
-            "seller": self.seller.pk,
             "name": self.name,
-            "created": self.created,
+            # "images": [im.url for im in self.images]
+            "seller": self.seller.pk,
             "base_price": self.base_price,
             "description": self.description,
-            "interested_buyers": [
-                p.to_compact_dict() for p in self.interested_buyers.all()
-            ],
             "sold": self.sold,
             "is_ticket": self.is_ticket,
-            "images": [im.url for im in self.images]
+            "created": self.created,
         }
 
     def __str__(self):
@@ -176,6 +177,9 @@ class ImageModel(models.Model):
     image = models.ImageField(upload_to="images/")
     thumbnail = models.ImageField(upload_to="thumbs/")
 
+    # @receiver(pre_save)
+    # def resize_image(self,instance,**kwargs):
+    #     pass
 
 
 class ProductBid(models.Model):

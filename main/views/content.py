@@ -12,6 +12,8 @@ from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from main.models import Profile, Product, ProfileRating
 
+from ..schema.utils import create_product, update_product, create_profile, update_profile, create_bid, update_bid, profile_rating
+
 import logging
 
 log = logging.getLogger("main")
@@ -20,48 +22,34 @@ log = logging.getLogger("main")
 @api_view(
     ["GET",]
 )
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def get_products(request):
     paginator = PageNumberPagination()
     query_set = Product.objects.all()
     context = paginator.paginate_queryset(query_set, request)
-    products = [p.to_dict() for p in context]
+    products = [p.to_dict() for p in context if p.visible == True]
     return Response(products, status=status.HTTP_200_OK)
 
 
 @api_view(
     ["POST",]
 )
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 @transaction.atomic
 def add_product(request):
-    data = request.data
-    if data["base_price"] is None:
-        return Response(
-            {"error": "Product should have a Price."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-    else:
-        validated_price = data["base_price"]
-
-    product = Product(base_price=validated_price)
-
-    product.seller = request.user.profile
-    product.sold = False
-    product.is_ticket = data["is_ticket"]
-    product.name = data["name"]
-    product.description = data["description"]
-    product.category = data["category"]
-    product.save()
-
-    return Response(product.to_dict(), status=status.HTTP_201_CREATED)
+    try:
+        product = create_product(request.user.profile,**request.data)
+        return Response(product.to_dict(), status=status.HTTP_201_CREATED)
+    except:
+        return Response({"error":"Unable to add product."},status=status.HTTP_400_BAD_REQUEST)
+    
 
 
 @cache_page(60 * 10)
 @api_view(
     ["GET",]
 )
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def product_detail(request, id):
     try:
         required_product = Product.objects.get(pk=id)
@@ -75,7 +63,7 @@ def product_detail(request, id):
 
 @cache_page(60 * 10)
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def get_profile(request, id):
     try:
         required_user = User.objects.get(pk=id)
@@ -90,32 +78,17 @@ def get_profile(request, id):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def rate_user(request, id):
-    data = request.data
-    if data["rating"] is None:
-        return Response(
-            {"error": "seller is not rated."}, status=status.HTTP_400_BAD_REQUEST
-        )
-    else:
-        rating = data["rating"]
-
+    rating = request.data["rating"]
     rating_for = Profile.objects.get(pk=id)
-    rated_by = request.user.profile
-    rating_record = ProfileRating()
-    rating_record.rating_for = rating_for
-    rating_record.rated_by = rated_by
-    rating_record.rating = rating
-
-    rating_record.save()
-    rating_for.save()
-    rated_by.save()
+    rating_record = profile_rating(rating_for, request.user.profile, rating)
 
     return Response(rating_record.to_dict(), status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 @cache_page(60 * 5)
 def search_product(request):
     data = request.data
@@ -128,7 +101,7 @@ def search_product(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 @cache_page(60 * 5)
 def interested_buyers(request, id):
     interested = request.user.profile
@@ -141,7 +114,7 @@ def interested_buyers(request, id):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def sell_product(request, id):
     try:
         required_product = Product.objects.get(pk=id)
@@ -162,7 +135,7 @@ def sell_product(request, id):
 
 @cache_page(60 * 10)
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def user_products(request):
     try:
         required_profile = request.user.profile
@@ -176,14 +149,14 @@ def user_products(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def my_profile(request):
     my_profile = request.user.profile
     return Response(my_profile.to_dict(), status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def update_profile(request):
     user = request.user
     data = request.data
