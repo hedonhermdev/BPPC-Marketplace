@@ -22,7 +22,7 @@ log = logging.getLogger("main")
 @api_view(
     ["GET",]
 )
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def get_products(request):
     paginator = PageNumberPagination()
     query_set = Product.objects.all()
@@ -34,7 +34,7 @@ def get_products(request):
 @api_view(
     ["POST",]
 )
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 @transaction.atomic
 def add_product(request):
     try:
@@ -49,7 +49,7 @@ def add_product(request):
 @api_view(
     ["GET",]
 )
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def product_detail(request, id):
     try:
         required_product = Product.objects.get(pk=id)
@@ -63,7 +63,7 @@ def product_detail(request, id):
 
 @cache_page(60 * 10)
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def get_profile(request, id):
     try:
         required_user = User.objects.get(pk=id)
@@ -78,7 +78,7 @@ def get_profile(request, id):
 
 
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def rate_user(request, id):
     rating = request.data["rating"]
     rating_for = Profile.objects.get(pk=id)
@@ -87,21 +87,8 @@ def rate_user(request, id):
     return Response(rating_record.to_dict(), status=status.HTTP_200_OK)
 
 
-@api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-@cache_page(60 * 5)
-def search_product(request):
-    data = request.data
-    products = Product.objects.all()
-    if data["category"] is not None:
-        products = products.filter(category=data["category"])
-    if data["description"] is not None:
-        products = products.filter(description__contains=data["description"])
-    return Response(products.to_dict(), status=status.HTTP_200_OK)
-
-
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 @cache_page(60 * 5)
 def interested_buyers(request, id):
     interested = request.user.profile
@@ -113,33 +100,13 @@ def interested_buyers(request, id):
     return Response(product.to_dict(), status=status.HTTP_201_CREATED)
 
 
-@api_view(["POST"])
-# @permission_classes([IsAuthenticated])
-def sell_product(request, id):
-    try:
-        required_product = Product.objects.get(pk=id)
-    except Product.DoesNotExist:
-        return Response(
-            {"error": "No Such Product Exits."}, status=status.HTTP_404_NOT_FOUND
-        )
-
-    if request.user.id != required_product.seller.id:
-        return Response(
-            {"error": "Only seller can sell a product"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    required_product.sold = True
-    return Response(required_product.to_dict(), status=status.HTTP_200_OK)
-
-
 @cache_page(60 * 10)
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def user_products(request):
     try:
-        required_profile = request.user.profile
-    except User.DoesNotExist:
+        required_profile = request.user.profile or Profile.objects.last()
+    except:
         return Response(
             {"error": "No Such User Exist"}, status=status.HTTP_404_NOT_FOUND
         )

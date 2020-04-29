@@ -91,7 +91,7 @@ def update_bid(bid, **kwargs):
 
 def profile_rating(rating_for, rated_by, rating):
     """
-    Given the attributes of rating_for(Profile) and rated_by(Profile) instance, create a
+    Given the attributes of rating_for(Profile) and rated_by(Profile) instance, create a new profile_rating and save it to the database. Utility for ProfileRating Mutation.
     """
     rate_profile = models.ProfileRating()
     rate_profile.rating_for = rating_for
