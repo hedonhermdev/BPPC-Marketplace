@@ -91,6 +91,9 @@ class UpdateProfile(MutationPayload, graphene.Mutation):
     def mutate(root, info, username, input=None):
         errors = []
 
+        if input is None:
+            errors.append("Must provide an input to perform mutation. ")
+            return UpdateProfile(errors=erros, profile=None)
         try:
             profile = models.User.objects.get(username=username).profile
         except ObjectDoesNotExist:
@@ -101,7 +104,7 @@ class UpdateProfile(MutationPayload, graphene.Mutation):
             errors.append(f"Users are allowed to update only their respective profile.")
             return UpdateProfile(errors=errors, profile=None)
 
-        profile = utils.upadate_profile(profile, **input.__dict__)
+        profile = utils.update_profile(profile, **input.__dict__)
 
         return UpdateProfile(errors=errors, profile=profile)
 
