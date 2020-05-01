@@ -25,6 +25,11 @@ CATEGORY_CHOICES = (
     "Other Utility",
 )
 
+PERMISSION_LEVEL = (
+    (0, "Buyer"), # Can only buy products. (Non-BITSian)
+    (1, "Buyer+Seller"), # Can buy and sell products. (Gen BITSian)
+    (2, "Admin"), # Can buy, sell and flag products. (SU, DVM)
+)
 
 # Create your models here.
 class Profile(models.Model):
@@ -37,6 +42,8 @@ class Profile(models.Model):
     rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
     num_ratings = models.IntegerField(default=0)
     email = models.EmailField()
+
+    permission_level = models.SmallIntegerField(choices=PERMISSION_LEVEL, default=2)
 
     @property
     def hostel_name(self):
@@ -167,8 +174,8 @@ class Product(models.Model):
         return self.name
 
 class Wishlist(models.Model):
-    profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
-    products = models.ManyToManyField(Product, related_name='wishlists', symmetrical=False, blank=True)
+    profile = models.OneToOneField(Profile, related_name="wishlist", on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product, symmetrical=False, blank=True)
 
 class ImageModel(models.Model):
     """

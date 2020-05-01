@@ -107,7 +107,7 @@ DATABASES = {
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
 AUTHENTICATION_BACKENDS = [
-    "graphql_jwt.backends.JSONWebTokenBackend",
+    'graphql_jwt.backends.JSONWebTokenBackend',
     "django.contrib.auth.backends.ModelBackend",
 ]
 
@@ -197,8 +197,10 @@ LOGGING = {
 # ---- GRAPHENE ----
 
 GRAPHENE = {
-    "SCHEMA": "marketplace.schema.schema",
-    "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware",],
+    'SCHEMA': 'marketplace.schema.schema',
+    'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+    ],
 }
 
 # ----- ELASTICSEARCH -----
@@ -209,7 +211,4 @@ GRAPHENE = {
 # ---- CORS HEADERS ----
 CORS_ORIGIN_ALLOW_ALL = True
 
-GRAPHQL_JWT = {
-    "JWT_ALLOW_ARGUMENT": True,
-}
 

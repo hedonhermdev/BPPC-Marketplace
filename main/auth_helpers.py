@@ -18,3 +18,4 @@ def get_jwt_with_user(user):
     payload = jwt_payload_handler(user)
     token = jwt_encode_handler(payload)
     return token
+
