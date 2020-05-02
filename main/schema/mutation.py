@@ -110,7 +110,7 @@ class UpdateProfile(MutationPayload, graphene.Mutation):
         return UpdateProfile(errors=errors, profile=profile)
 
 
-class UpdateWishlist(MutationPayload, graphene.Mutation):
+class AddToWishlist(MutationPayload, graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
 
@@ -143,6 +143,7 @@ class CreateBid(MutationPayload, graphene.Mutation):
     bid = graphene.Field(ProductBid)
 
     @login_required
+    @user_passes_test(lambda user: user.profile.permission_level >= models.Profile.BUYER)
     def mutate(root, info, id, input=None):
         errors = []
 
@@ -188,7 +189,7 @@ class Mutation:
     update_product = UpdateProduct.Field()
     create_profile = CreateProfile.Field()
     update_profile = UpdateProfile.Field()
-    update_wishlist = UpdateWishlist.Field()
+    update_wishlist = AddToWishlist.Field()
     create_bid = CreateBid.Field()
     update_bid = UpdateBid.Field()
 

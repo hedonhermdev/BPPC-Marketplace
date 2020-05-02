@@ -32,6 +32,13 @@ def authenticate(request):
 
     email = id_info["email"]
 
+    # Login if user already exists
+    if User.objects.filter(email=email).count() != 0:
+        user = User.objects.get(email=email)
+        token = get_jwt_with_user(user)
+        log.info(f"{request.path}: user {user.username} logged in.")
+        return Response({"token": token, "isNew": False}, status=status.HTTP_200_OK)
+
     domain = getattr(id_info, "hd", email.split("@")[-1])
 
     # Bitsian or Non Bitsian
@@ -42,11 +49,6 @@ def authenticate(request):
         # Non-bitsians can be buyers only.
         permission_level = Profile.BUYER
 
-    if User.objects.filter(email=email).count() != 0:
-        user = User.objects.get(email=email)
-        token = get_jwt_with_user(user)
-        log.info(f"{request.path}: user {user.username} logged in.")
-        return Response({"token": token, "isNew": False}, status=status.HTTP_200_OK)
 
     user = User(username=email.split("@")[0], email=email)
     user.set_password(generate_random_password())

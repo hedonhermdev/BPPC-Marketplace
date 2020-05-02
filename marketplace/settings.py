@@ -41,10 +41,12 @@ INSTALLED_APPS = [
     "rest_framework",
     "graphene_django",
     "corsheaders",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -139,7 +141,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
@@ -211,4 +213,9 @@ GRAPHENE = {
 # ---- CORS HEADERS ----
 CORS_ORIGIN_ALLOW_ALL = True
 
-
+# ---- DEBUGGING ----
+INTERNAL_IPS = [
+    # ...
+    '127.0.0.1',
+    # ...
+]
