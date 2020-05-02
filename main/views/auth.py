@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as googleIdToken
 from rest_framework import status
@@ -6,9 +5,11 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from main.auth_helpers import generate_random_password, get_jwt_with_user
+from main.models import User, Profile
 
 import logging
 
+# Set up logger. 
 log = logging.getLogger("main")
 
 
@@ -33,11 +34,13 @@ def authenticate(request):
 
     domain = getattr(id_info, "hd", email.split("@")[-1])
 
-    if domain != "pilani.bits-pilani.ac.in":
-        log.error(f"{request.path}: {email} is not a valid BITS Mail account")
-        return Response(
-            {"error": "Not a valid BITS Mail account"}, status=status.HTTP_403_FORBIDDEN
-        )
+    # Bitsian or Non Bitsian
+    if domain == "pilani.bits-pilani.ac.in":
+        # Bitsians can be sellers
+        permission_level = Profile.SELLER
+    else:
+        # Non-bitsians can be buyers only.
+        permission_level = Profile.BUYER
 
     if User.objects.filter(email=email).count() != 0:
         user = User.objects.get(email=email)
@@ -47,9 +50,9 @@ def authenticate(request):
 
     user = User(username=email.split("@")[0], email=email)
     user.set_password(generate_random_password())
-
     user.save()
-
+    user.profile.permission_level = permission_level   
+    user.profile.save()
     token = get_jwt_with_user(user)
 
     log.info(f"{request.path}: created user with email {user.email}")

@@ -1,5 +1,5 @@
 import graphene
-from graphql_jwt.decorators import login_required
+from graphql_jwt.decorators import login_required, user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
 
 from main.schema.inputs import ProductInput, ProfileInput, ProductBidInput
@@ -29,6 +29,7 @@ class CreateProduct(MutationPayload, graphene.Mutation):
     product = graphene.Field(Product)
 
     @login_required
+    @user_passes_test(lambda user: user.profile.permission_level >= models.Profile.SELLER)
     def mutate(root, info, input=None):
         errors = []
 

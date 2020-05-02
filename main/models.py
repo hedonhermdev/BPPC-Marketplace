@@ -25,14 +25,22 @@ CATEGORY_CHOICES = (
     "Other Utility",
 )
 
-PERMISSION_LEVEL = (
-    (0, "Buyer"), # Can only buy products. (Non-BITSian)
-    (1, "Buyer+Seller"), # Can buy and sell products. (Gen BITSian)
-    (2, "Admin"), # Can buy, sell and flag products. (SU, DVM)
-)
 
 # Create your models here.
 class Profile(models.Model):
+    # --- Permission levels ---
+    BANNED = 0
+    BUYER = 1
+    SELLER = 2
+    ADMIN = 3
+    LEVELS = (
+        (BANNED, "Banned"), # Banned users cannot perform any action other than browsing products. 
+        (BUYER, "Buyer"),
+        (SELLER, "Seller"),
+        (ADMIN, "Admin"),
+    )
+    # --- xxx ----
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     name = models.CharField(max_length=100)
     profile_picture = models.ForeignKey('ImageModel', on_delete=models.SET_NULL, null=True, blank=True)
@@ -43,7 +51,7 @@ class Profile(models.Model):
     num_ratings = models.IntegerField(default=0)
     email = models.EmailField()
 
-    permission_level = models.SmallIntegerField(choices=PERMISSION_LEVEL, default=2)
+    permission_level = models.SmallIntegerField(choices=LEVELS, default=2)
 
     @property
     def hostel_name(self):

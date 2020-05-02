@@ -1,6 +1,7 @@
 import random
-
+from django.contrib.auth.decorators import user_passes_test
 from rest_framework_jwt.settings import api_settings
+from main.models import Profile
 
 
 def generate_random_password():
@@ -18,4 +19,3 @@ def get_jwt_with_user(user):
     payload = jwt_payload_handler(user)
     token = jwt_encode_handler(payload)
     return token
-
