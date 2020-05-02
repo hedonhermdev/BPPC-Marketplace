@@ -32,7 +32,7 @@ def authenticate(request):
 
     email = id_info["email"]
 
-    # Login if user already exists
+    # Login if user already exists.
     if User.objects.filter(email=email).count() != 0:
         user = User.objects.get(email=email)
         token = get_jwt_with_user(user)
