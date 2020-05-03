@@ -92,6 +92,7 @@ class Profile(DjangoObjectType):
     def resolve_bids(self, info, **kwargs):
         return self.bids.all()
 
+
 class Wishlist(DjangoObjectType):
     class Meta:
         model = models.Wishlist
@@ -106,3 +107,11 @@ class Wishlist(DjangoObjectType):
     @staticmethod
     def resovle_profile(self, info, **kwargs):
         return self.profile
+
+
+class ProductPaginated(graphene.ObjectType):
+    page = graphene.Int()
+    pages = graphene.Int()
+    has_next = graphene.Boolean()
+    has_prev = graphene.Boolean()
+    objects = graphene.List(Product)

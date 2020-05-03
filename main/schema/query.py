@@ -1,12 +1,14 @@
 import graphene
 from django.core.exceptions import ObjectDoesNotExist
+from main.schema import utils
 
 from main import models
 from main.schema.types import (
     Category,
     Profile,
     Product,
-    ProductBid
+    ProductBid,
+    ProductPaginated
 )
 
 from graphql_jwt.decorators import login_required
@@ -20,6 +22,7 @@ class Query:
     profile = graphene.Field(Profile, id=graphene.Int())
     product_bid = graphene.List(ProductBid, id=graphene.Int())
     wishlist = graphene.List(Product)
+    products = graphene.Field(ProductPaginated, page=graphene.Int())
 
     @login_required
     def resolve_all_categories(self, info, **kwargs):
@@ -95,3 +98,9 @@ class Query:
             return product.bids.all()
 
         return None
+
+    @login_required
+    def resolve_products(self, info, page):
+        page_size = 2
+        qs = models.Product.objects.all()
+        return utils.get_paginator(qs, page_size, page, ProductPaginated)
