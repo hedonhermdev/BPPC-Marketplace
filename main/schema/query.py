@@ -19,7 +19,7 @@ class Query:
     all_profiles = graphene.List(Profile)
     category = graphene.List(Category)
     product = graphene.Field(Product, id=graphene.Int())
-    profile = graphene.Field(Profile, id=graphene.Int())
+    profile = graphene.Field(Profile, id=graphene.Int(), username=graphene.String(), email=graphene.String())
     product_bid = graphene.List(ProductBid, id=graphene.Int())
     wishlist = graphene.List(Product)
     products = graphene.Field(ProductPaginated, page=graphene.Int())
@@ -55,10 +55,7 @@ class Query:
         return None
 
     @login_required
-    def resolve_profile(self, info, **kwargs):
-        username = kwargs.get('username')
-        id = kwargs.get('id')
-        email = kwargs.get('email')
+    def resolve_profile(self, info, id=None, username=None, email=None):
         if username is not None:
             try:
                 user = models.User.objects.get(username=username)
