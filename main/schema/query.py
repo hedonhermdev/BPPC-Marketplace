@@ -22,7 +22,7 @@ class Query:
     profile = graphene.Field(Profile, id=graphene.Int(), username=graphene.String(), email=graphene.String())
     product_bid = graphene.List(ProductBid, id=graphene.Int())
     wishlist = graphene.List(Product)
-    products = graphene.Field(ProductPaginated, page=graphene.Int())
+    products = graphene.Field(ProductPaginated, page=graphene.Int(), pagesize=graphene.Int())
 
     @login_required
     def resolve_all_categories(self, info, **kwargs):
@@ -97,7 +97,7 @@ class Query:
         return None
 
     @login_required
-    def resolve_products(self, info, page):
-        page_size = 2
+    def resolve_products(self, info, page, pagesize):
+        page_size = pagesize
         qs = models.Product.objects.all()
         return utils.get_paginator(qs, page_size, page, ProductPaginated)

@@ -110,7 +110,7 @@ class UpdateProfile(MutationPayload, graphene.Mutation):
         return UpdateProfile(errors=errors, profile=profile)
 
 
-class AddToWishlist(MutationPayload, graphene.Mutation):
+class UpdateWishlist(MutationPayload, graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
 
@@ -125,7 +125,9 @@ class AddToWishlist(MutationPayload, graphene.Mutation):
         except ObjectDoesNotExist:
             errors.append(f"Product requested to add, not found ")
             return UpdateWishlist(errors=errors, wishlist=None)
-        
+        if(product.seller == info.context.user.profile):
+            errors.append(f"User can't add his product to wishlist.")
+            return UpdateWishlist(errors=errors, wishlist=None)
         wishlist = info.context.user.profile.wishlist
         if product in wishlist.products.all():
             wishlist.products.remove(product)
@@ -154,6 +156,9 @@ class CreateBid(MutationPayload, graphene.Mutation):
             return CreateBid(errors=errors, bid=None)
 
         profile = info.context.user.profile
+        if(product.seller == profile):
+            errors.append(f"User can't bid on their on product")
+            return CreateBid(errors=errors, bid=None)
         bid = utils.create_bid(profile, product, **input.__dict__)
 
         return CreateBid(errors=errors, bid=bid)
@@ -189,7 +194,7 @@ class Mutation:
     update_product = UpdateProduct.Field()
     create_profile = CreateProfile.Field()
     update_profile = UpdateProfile.Field()
-    update_wishlist = AddToWishlist.Field()
+    update_wishlist = UpdateWishlist.Field()
     create_bid = CreateBid.Field()
     update_bid = UpdateBid.Field()
 
