@@ -67,7 +67,7 @@ class Profile(DjangoObjectType):
         fields = ['id', 'name', 'room_no', 'contact_no', 'rating', 'email']
         
     username = graphene.String()
-    profile_picture = graphene.String()
+    avatar = graphene.String()
     hostel = graphene.String()
     products = graphene.List(Product)
     bids = graphene.List(ProductBid)
@@ -77,8 +77,11 @@ class Profile(DjangoObjectType):
         return self.user.username
 
     @staticmethod
-    def resolve_profile_picture(self, info, **kwargs):
-        return self.profile_picture.image.url
+    def resolve_avatar(self, info, **kwargs):
+        try:
+            return self.avatar.first().url
+        except:
+            return ""
     
     @staticmethod
     def resolve_hostel(self, info, **kwargs):
@@ -91,6 +94,7 @@ class Profile(DjangoObjectType):
     @staticmethod
     def resolve_bids(self, info, **kwargs):
         return self.bids.all()
+
 
 
 class Wishlist(DjangoObjectType):
@@ -115,3 +119,4 @@ class ProductPaginated(graphene.ObjectType):
     has_next = graphene.Boolean()
     has_prev = graphene.Boolean()
     objects = graphene.List(Product)
+

@@ -39,11 +39,11 @@ class Profile(models.Model):
         (SELLER, "Seller"),
         (ADMIN, "Admin"),
     )
-    # --- xxx ----
+    # --- xxx ---
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     name = models.CharField(max_length=100)
-    profile_picture = models.ForeignKey('ImageModel', on_delete=models.SET_NULL, null=True, blank=True)
+    avatar = models.ManyToManyField('Avatar', symmetrical=False, blank=True)
     hostel = models.CharField(choices=HOSTEL_CHOICES, max_length=2)
     room_no = models.PositiveIntegerField(blank=True, null=True)
     contact_no = models.PositiveIntegerField(blank=True, null=True)
@@ -57,10 +57,6 @@ class Profile(models.Model):
     def hostel_name(self):
         return getattr(dict(HOSTEL_CHOICES), self.hostel, "")
 
-    @property
-    def profile_picture_url(self):
-        return self.profile_picture.url
-
     def to_dict(self):
         return {
             "id": self.id,
@@ -72,7 +68,6 @@ class Profile(models.Model):
             "rating": self.rating,
             "num_rating": self.num_ratings,
             "email": self.email,
-            # "profile_picture": self.profile_picture.url,
         }
 
     def to_compact_dict(self):
@@ -97,6 +92,18 @@ def create_or_update_profile(sender, instance, created, **kwargs):
         Wishlist.objects.create(profile=instance.profile)
     instance.profile.save()
     
+
+class Avatar(models.Model):
+    """
+    Model to save avatars of user profiles.
+    """
+    name = models.CharField(max_length=20)
+    image = models.ImageField(upload_to='avatars')
+    url = models.CharField(max_length=40, null=True)
+    
+    def save(self, *args, **kwargs):
+        self.url = self.image.url
+        super().save(*args, **kwargs)
 
 
 class ProfileRating(models.Model):
