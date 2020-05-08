@@ -20,6 +20,7 @@ class Query:
     category = graphene.List(Category)
     product = graphene.Field(Product, id=graphene.Int())
     profile = graphene.Field(Profile, id=graphene.Int(), username=graphene.String(), email=graphene.String())
+    my_profile = graphene.Field(Profile)
     product_bid = graphene.List(ProductBid, id=graphene.Int())
     wishlist = graphene.List(Product)
     products = graphene.Field(ProductPaginated, page=graphene.Int(), pagesize=graphene.Int())
@@ -101,3 +102,8 @@ class Query:
         page_size = pagesize
         qs = models.Product.objects.all()
         return utils.get_paginator(qs, page_size, page, ProductPaginated)
+
+    @login_required
+    def resolve_my_profile(self, info, **kwargs):
+        profile = info.context.user.profile
+        return profile
