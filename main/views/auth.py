@@ -50,10 +50,11 @@ def authenticate(request):
         permission_level = Profile.BUYER
 
 
-    user = User(username=email.split("@")[0], email=email)
+    user = User(username=email.split("@")[0])
     user.set_password(generate_random_password())
     user.save()
     user.profile.permission_level = permission_level   
+    user.profile.email = email
     user.profile.save()
     token = get_jwt_with_user(user)
 
