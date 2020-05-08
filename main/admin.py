@@ -1,6 +1,7 @@
 from django.contrib import admin
 from main.models import (
     Profile,
+    Avatar,
     Product,
     ImageModel,
     ProductBid,
@@ -11,6 +12,7 @@ from main.models import (
     Wishlist
 )
 
+admin.site.register(Avatar)
 admin.site.register(Profile)
 admin.site.register(Product)
 admin.site.register(ImageModel)

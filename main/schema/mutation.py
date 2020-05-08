@@ -8,6 +8,7 @@ from main.schema import utils
 
 from main import models
 
+
 class MutationPayload(graphene.ObjectType):
     ok = graphene.Boolean(required=True)
     errors = graphene.List(graphene.String, required=True)
@@ -21,6 +22,7 @@ class MutationPayload(graphene.ObjectType):
 
     def resolve_query(self, info):
         return {}
+
 
 class CreateProduct(MutationPayload, graphene.Mutation):
     class Arguments:
