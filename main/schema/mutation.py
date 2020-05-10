@@ -8,6 +8,10 @@ from main.schema import utils
 
 from main import models
 
+import logging
+
+viewlog = logging.getLogger("viewlog")
+
 
 class MutationPayload(graphene.ObjectType):
     ok = graphene.Boolean(required=True)
@@ -37,6 +41,7 @@ class CreateProduct(MutationPayload, graphene.Mutation):
 
         seller = info.context.user.profile
         product = utils.create_product(seller, **input.__dict__)
+        viewlog.debug(f"Product created with details : {product.to_dict()}")
 
         return CreateProduct(errors=errors,product=product)
 
@@ -79,6 +84,7 @@ class CreateProfile(MutationPayload, graphene.Mutation):
 
         user = info.context.user
         profile = utils.create_profile(user, **input.__dict__)
+        viewlog.debug(f"New Profile created : {profile.to_dict()}")
 
         return CreateProfile(errors=errors, profile = profile)
 
@@ -108,6 +114,7 @@ class UpdateProfile(MutationPayload, graphene.Mutation):
             return UpdateProfile(errors=errors, profile=None)
 
         profile = utils.update_profile(profile, **input.__dict__)
+        viewlog.debug(f"Profile Updated: {profile.to_dict()}")
 
         return UpdateProfile(errors=errors, profile=profile)
 
@@ -162,6 +169,7 @@ class CreateBid(MutationPayload, graphene.Mutation):
             errors.append(f"User can't bid on their on product")
             return CreateBid(errors=errors, bid=None)
         bid = utils.create_bid(profile, product, **input.__dict__)
+        viewlog.debug(f"New Bid: {bid.to_dict()}")
 
         return CreateBid(errors=errors, bid=bid)
 

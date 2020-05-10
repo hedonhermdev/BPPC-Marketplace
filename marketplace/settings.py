@@ -54,6 +54,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "request_logging.middleware.LoggingMiddleware"
 ]
 
 ROOT_URLCONF = "marketplace.urls"
@@ -162,38 +163,32 @@ JWT_AUTH = {
 
 # ---------LOGGING----------
 
+DEBUGPATH = os.path.join(BASE_DIR, "main/logs/DEBUG.log")
+
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": True,
-    "formatters": {
-        "standard": {
-            "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            "datefmt": "%d/%b/%Y %H:%M:%S",
-        },
+    'version':1,
+    'disable_existing_loggers':False,
+    'formatters': {
+        'default': {
+            'format': 'TIME: %(asctime)s\nLEVEL: %(levelname)s\nMESSAGE: %(message)s\n'
+        }
     },
-    "handlers": {
-        "null": {"level": "DEBUG", "class": "logging.NullHandler",},
-        "logfile": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": os.path.join(BASE_DIR, "main/logfile.log"),
-            "mode": "w",
-        },
-        "console": {
-            "level": "INFO",
-            "class": "logging.StreamHandler",
-            "formatter": "standard",
-        },
+    'handlers':{
+        'debug':{
+            'level': 'DEBUG',
+            'formatter': 'default',
+            'class': 'logging.FileHandler',
+            'filename':DEBUGPATH,
+            'mode':'w'
+        }
     },
-    "loggers": {
-        "django": {"handlers": ["console"], "propagate": True, "level": "WARN",},
-        "django.db.backends": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
-        "main": {"handlers": ["console", "logfile"], "level": "DEBUG",},
-    },
+    'loggers': {
+        'viewlog': {
+            'level':'DEBUG',
+            'handlers': ['debug',],
+            'propagate': True
+        }
+    }
 }
 
 # ---- GRAPHENE ----

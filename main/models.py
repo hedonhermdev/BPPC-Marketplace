@@ -219,6 +219,13 @@ class ProductBid(models.Model):
     def __str__(self):
         return f"ProductBid({self.product.name}, {self.bidder.name}, {self.amount})"
 
+    def to_dict(self):
+        return {
+            "bidder": self.bidder.name,
+            "product": self.product.name,
+            "amount": self.amount,
+        }
+
 
 class ProductQnA(models.Model):
     """
