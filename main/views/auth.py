@@ -33,13 +33,15 @@ def authenticate(request):
     email = id_info["email"]
 
     # Login if user already exists.
-    if User.objects.filter(email=email).count() != 0:
-        user = User.objects.get(email=email)
-        token = get_jwt_with_user(user)
-        log.info(f"{request.path}: user {user.username} logged in.")
-        return Response({"token": token, "isNew": False}, status=status.HTTP_200_OK)
 
-    domain = getattr(id_info, "hd", email.split("@")[-1])
+    username, domain = email.split('@')
+
+    try: 
+        user = User.objects.get(username=username)
+        token = get_jwt_with_user(user)
+        return Response({"token": token, "isNew": False}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        pass
 
     # Bitsian or Non Bitsian
     if domain == "pilani.bits-pilani.ac.in":
@@ -60,7 +62,7 @@ def authenticate(request):
 
     log.info(f"{request.path}: created user with email {user.email}")
     return Response(
-        {"token": token, "username": user.username, "email": user.email, "isNew": True},
+        {"token": token, "username": user.username, "isNew": True},
         status=status.HTTP_201_CREATED,
     )
 
