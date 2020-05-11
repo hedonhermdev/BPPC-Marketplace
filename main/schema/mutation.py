@@ -157,7 +157,6 @@ class CreateBid(MutationPayload, graphene.Mutation):
     @user_passes_test(lambda user: user.profile.permission_level >= models.Profile.BUYER)
     def mutate(root, info, id, input=None):
         errors = []
-
         try:
             product = models.Product.objects.get(id=id)
         except ObjectDoesNotExist:
@@ -168,6 +167,16 @@ class CreateBid(MutationPayload, graphene.Mutation):
         if(product.seller == profile):
             errors.append(f"User can't bid on their on product")
             return CreateBid(errors=errors, bid=None)
+
+        try:
+            previous_bid = list(models.ProductBid.objects.filter(bidder=profile, product=product))[-1]
+        except:
+            previous_bid = None
+
+        if(previous_bid and previous_bid.amount >= input.amount):
+            errors.append(f"You can't bid less than or equal to your previous bid.")
+            return CreateBid(errors=errors, bid=None)
+
         bid = utils.create_bid(profile, product, **input.__dict__)
         viewlog.debug(f"New Bid: {bid.to_dict()}")
 
