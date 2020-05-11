@@ -163,7 +163,7 @@ JWT_AUTH = {
 
 # ---------LOGGING----------
 
-DEBUGPATH = os.path.join(BASE_DIR, "main/logs/DEBUG.log")
+DEBUGPATH = os.path.join(BASE_DIR, "main/DEBUG.log")
 
 LOGGING = {
     'version':1,
