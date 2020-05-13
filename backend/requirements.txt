@@ -46,3 +46,6 @@ singledispatch==3.4.0.3
 six==1.14.0
 soupsieve==2.0
 urllib3==1.25.8
+django-request-logging==0.7.1
+requests==2.23.0
+django-debug-toolbar==2.2
