@@ -17,7 +17,7 @@ class Query:
     all_categories = graphene.List(Category)
     all_products = graphene.List(Product)
     all_profiles = graphene.List(Profile)
-    category = graphene.List(Category)
+    category = graphene.Field(Category, name=graphene.String())
     product = graphene.Field(Product, id=graphene.Int())
     profile = graphene.Field(Profile, id=graphene.Int(), username=graphene.String(), email=graphene.String())
     my_profile = graphene.Field(Profile)
@@ -40,6 +40,7 @@ class Query:
     @login_required
     def resolve_category(self, info, **kwargs):
         name = kwargs.get('name')
+
         if name is not None:
             return models.Category.objects.get(name=name)
         return None

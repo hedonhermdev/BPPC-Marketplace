@@ -163,7 +163,7 @@ class Product(models.Model):
     )
     base_price = models.IntegerField(blank=False, null=False)
     description = models.CharField(max_length=300)
-    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True)
+    category = models.ForeignKey('Category', related_name="products", on_delete=models.SET_NULL, null=True)
     sold = models.BooleanField(default=False)
     is_ticket = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)

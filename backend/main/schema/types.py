@@ -55,9 +55,11 @@ class Category(DjangoObjectType):
     class Meta:
         model = models.Category
         fields = ['name']
+
     products = graphene.List(Product)
     
-    def resolve_products(self):
+    @staticmethod
+    def resolve_products(self, info, **kwargs):
         return self.products.all()
                 
 
