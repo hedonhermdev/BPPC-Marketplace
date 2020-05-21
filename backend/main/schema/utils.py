@@ -61,7 +61,6 @@ def create_profile(user, **kwargs):
     profile.user = user
     profile.name = kwargs.get('name')
     profile.hostel = kwargs.get('hostel')
-    profile.room_no = kwargs.get('room_no')
     profile.contact_no = kwargs.get('contact_no')
     profile.email = kwargs.get('email')
 
@@ -71,7 +70,7 @@ def create_profile(user, **kwargs):
 
 def update_profile(profile, **kwargs):
     
-    fields = ['name', 'hostel', 'room_no', 'contact_no']
+    fields = ['name', 'hostel', 'contact_no']
 
     for field in fields:
         update = kwargs.get(field)

@@ -45,7 +45,6 @@ class Profile(models.Model):
     name = models.CharField(max_length=100)
     avatar = models.ManyToManyField('Avatar', symmetrical=False, blank=True)
     hostel = models.CharField(choices=HOSTEL_CHOICES, max_length=2)
-    room_no = models.PositiveIntegerField(blank=True, null=True)
     contact_no = models.PositiveIntegerField(blank=True, null=True)
     rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
     num_ratings = models.IntegerField(default=0)
@@ -108,7 +107,7 @@ class Avatar(models.Model):
 
 class ProfileRating(models.Model):
     rating_for = models.ForeignKey(
-        Profile, related_name="ratings_recieved", on_delete=models.CASCADE
+        Profile, related_name="ratings_received", on_delete=models.CASCADE
     )
     rated_by = models.ForeignKey(
         Profile, related_name="rating_given", on_delete=models.CASCADE
@@ -204,24 +203,24 @@ class ImageModel(models.Model):
     #     pass
 
 
-class ProductBid(models.Model):
-    bidder = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="bids")
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="bids")
+class ProductOffer(models.Model):
+    offerer = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="offers")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="offers")
     amount = models.IntegerField()
     message = models.CharField(max_length=400)
 
-    def validate_bid_amount(self):
+    def validate_offer_amount(self):
         """
-        Check if bid amount is greater than product's base price
+        Check if offer amount is greater than product's base price
         """
         assert self.amount > product.base_price
 
     def __str__(self):
-        return f"ProductBid({self.product.name}, {self.bidder.name}, {self.amount})"
+        return f"ProductOffer({self.product.name}, {self.offerer.name}, {self.amount})"
 
     def to_dict(self):
         return {
-            "bidder": self.bidder.name,
+            "offerer": self.offerer.name,
             "product": self.product.name,
             "amount": self.amount,
         }

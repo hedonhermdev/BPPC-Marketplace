@@ -64,7 +64,7 @@ class Category(DjangoObjectType):
 class Profile(DjangoObjectType):
     class Meta:
         model = models.Profile
-        fields = ['id', 'name', 'room_no', 'contact_no', 'rating', 'email']
+        fields = ['id', 'name', 'contact_no', 'rating', 'email']
         
     username = graphene.String()
     avatar = graphene.String()
