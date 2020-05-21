@@ -8,11 +8,10 @@ class ProductInput(graphene.InputObjectType):
     sold = graphene.Boolean()
     category_id = graphene.Int()
 
-class ProfileInput(graphene.InputObjectType):
-    id = graphene.ID()
+class ProfileUpdateInput(graphene.InputObjectType):
     name = graphene.String()
     hostel = graphene.String()
-    contact_no = graphene.Int()
+    contact_no = graphene.String()
 
 class ProductOfferInput(graphene.InputObjectType):
     id = graphene.ID()

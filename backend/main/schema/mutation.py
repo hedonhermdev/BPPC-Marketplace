@@ -2,7 +2,7 @@ import graphene
 from graphql_jwt.decorators import login_required, user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
 
-from main.schema.inputs import ProductInput, ProfileInput, ProductOfferInput
+from main.schema.inputs import ProductInput, ProfileUpdateInput, ProductOfferInput
 from main.schema.types import Product, Profile, Wishlist, ProductOffer
 from main.schema import utils
 
@@ -75,7 +75,7 @@ class UpdateProduct(MutationPayload, graphene.Mutation):
 class UpdateProfile(MutationPayload, graphene.Mutation):
     class Arguments:
         username = graphene.String(required = True)
-        input = ProfileInput()
+        input = ProfileUpdateInput()
 
     profile = graphene.Field(Profile)
 
@@ -85,7 +85,7 @@ class UpdateProfile(MutationPayload, graphene.Mutation):
 
         if input is None:
             errors.append("Must provide an input to perform mutation. ")
-            return UpdateProfile(errors=erros, profile=None)
+            return UpdateProfile(errors=errors, profile=None)
         try:
             profile = models.User.objects.get(username=username).profile
         except ObjectDoesNotExist:

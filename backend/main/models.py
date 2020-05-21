@@ -67,7 +67,6 @@ class Profile(models.Model):
             "user": self.user.username,
             "name": self.name,
             "hostel": self.hostel,
-            "room_no": self.room_no,
             "contact_no": self.contact_no,
             "rating": self.rating,
             "num_rating": self.num_ratings,
@@ -78,12 +77,26 @@ class Profile(models.Model):
         return {
             "pk": self.pk,
             "user": self.user.pk,
-            "name": self.name,
+            "name": self.name, 
         }
 
     def __str__(self):
         return f"Profile({self.user.username})"
 
+    def save(self, *args, **kwargs):
+        domain = self.email.split('@')
+
+            # Bitsian or Non Bitsian
+        if domain == "pilani.bits-pilani.ac.in":
+            # Bitsians can be sellers
+            permission_level = Profile.SELLER
+        else:
+            # Non-bitsians can be buyers only.
+            permission_level = Profile.BUYER
+
+        self.permission_level = permission_level  
+
+        super().save(*args, **kwargs)
 
 @receiver(post_save, sender=User)
 def create_or_update_profile(sender, instance, created, **kwargs):
