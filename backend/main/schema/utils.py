@@ -55,19 +55,6 @@ def update_product(product, **kwargs):
 
     return product
 
-def create_profile(user, **kwargs):
-
-    profile = models.Profile()
-    profile.user = user
-    profile.name = kwargs.get('name')
-    profile.hostel = kwargs.get('hostel')
-    profile.contact_no = kwargs.get('contact_no')
-    profile.email = kwargs.get('email')
-
-    profile.save()
-
-    return profile
-
 def update_profile(profile, **kwargs):
     
     fields = ['name', 'hostel', 'contact_no']
