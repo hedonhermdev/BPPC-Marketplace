@@ -41,8 +41,11 @@ INSTALLED_APPS = [
     "rest_framework",
     "graphene_django",
     "corsheaders",
-    "debug_toolbar",
+    "phonenumber_field",
 ]
+
+if DEBUG:
+    INSTALLED_APPS.append("debug_toolbar",)
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",

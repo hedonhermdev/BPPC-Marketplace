@@ -4,6 +4,11 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+
+# It is a port of Google's libphonenuber library, which powers Android's phone number handling
+# Universal Way to store international mobile numbers
+from phonenumber_field .modelfields import PhoneNumberField
+
 from PIL import Image
 
 import uuid
@@ -45,7 +50,7 @@ class Profile(models.Model):
     name = models.CharField(max_length=100)
     avatar = models.ManyToManyField('Avatar', symmetrical=False, blank=True)
     hostel = models.CharField(choices=HOSTEL_CHOICES, max_length=2)
-    contact_no = models.PositiveIntegerField(blank=True, null=True)
+    contact_no = PhoneNumberField(blank=True, null=True, unique=True)
     rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
     num_ratings = models.IntegerField(default=0)
     email = models.EmailField()
