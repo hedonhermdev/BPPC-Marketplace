@@ -4,7 +4,7 @@ from main.models import (
     Avatar,
     Product,
     ImageModel,
-    ProductBid,
+    ProductOffer,
     ProductQnA,
     ProfileRating,
     ProductReport,
@@ -16,7 +16,7 @@ admin.site.register(Avatar)
 admin.site.register(Profile)
 admin.site.register(Product)
 admin.site.register(ImageModel)
-admin.site.register(ProductBid)
+admin.site.register(ProductOffer)
 admin.site.register(ProductQnA)
 admin.site.register(ProfileRating)
 admin.site.register(ProductReport)

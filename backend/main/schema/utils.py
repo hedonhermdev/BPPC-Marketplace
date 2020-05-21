@@ -82,30 +82,30 @@ def update_profile(profile, **kwargs):
 
     return profile
 
-def create_bid(profile, product, **kwargs):
+def create_offer(profile, product, **kwargs):
 
-    bid = models.ProductBid()
-    bid.bidder = profile
-    bid.product = product
-    bid.amount = kwargs.get('amount')
-    bid.message = kwargs.get('message')
+    offer = models.ProductOffer()
+    offer.offerer = profile
+    offer.product = product
+    offer.amount = kwargs.get('amount')
+    offer.message = kwargs.get('message')
 
-    bid.save()
+    offer.save()
 
-    return bid
+    return offer
 
-def update_bid(bid, **kwargs):
+def update_offer(offer, **kwargs):
 
     fields = ['amount', 'message']
 
     for field in fields:
         update = kwargs.get(field)
         if update is not None:
-            setattr(bid, field, update)
+            setattr(offer, field, update)
 
-    bid.save()
+    offer.save()
 
-    return bid
+    return offer
 
 def profile_rating(rating_for, rated_by, rating):
     """

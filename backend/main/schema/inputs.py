@@ -15,7 +15,7 @@ class ProfileInput(graphene.InputObjectType):
     room_no = graphene.Int()
     contact_no = graphene.Int()
 
-class ProductBidInput(graphene.InputObjectType):
+class ProductOfferInput(graphene.InputObjectType):
     id = graphene.ID()
     amount = graphene.Int()
     message = graphene.String()

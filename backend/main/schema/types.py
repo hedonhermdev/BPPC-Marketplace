@@ -4,10 +4,10 @@ from main import models
 from main.models import HOSTEL_CHOICES
 
         
-class ProductBid(DjangoObjectType):
+class ProductOffer(DjangoObjectType):
     class Meta:
-        model = models.ProductBid
-        fields = ['bidder', 'product', 'amount', 'message']
+        model = models.ProductOffer
+        fields = ['offerer', 'product', 'amount', 'message']
 
 class ProductQnA(DjangoObjectType):
     class Meta:
@@ -23,7 +23,7 @@ class ProductReport(DjangoObjectType):
 class Product(DjangoObjectType):
     class Meta:
         model = models.Product
-        fields = ['id', 'name', 'seller', 'base_price', 'bids', 'description', 'category', 'visible', 'sold'] 
+        fields = ['id', 'name', 'seller', 'base_price', 'offers', 'description', 'category', 'visible', 'sold'] 
         filter_fields = {
             'visible': ['exact'],
             'sold': ['exact'],
@@ -31,7 +31,7 @@ class Product(DjangoObjectType):
         }
 
     images = graphene.List(graphene.String)
-    bids = graphene.List(ProductBid)
+    offers = graphene.List(ProductOffer)
     questions = graphene.List(ProductQnA)
     reports = graphene.List(ProductReport)
     
@@ -40,8 +40,8 @@ class Product(DjangoObjectType):
         return [i.image.url for i in self.images.all()]
     
     @staticmethod
-    def resolve_bids(self, info, **kwargs):
-        return self.bids.all()
+    def resolve_offers(self, info, **kwargs):
+        return self.offers.all()
 
     @staticmethod
     def resolve_questions(self, info, **kwargs):
@@ -70,7 +70,7 @@ class Profile(DjangoObjectType):
     avatar = graphene.String()
     hostel = graphene.String()
     products = graphene.List(Product)
-    bids = graphene.List(ProductBid)
+    offers = graphene.List(ProductOffer)
 
     @staticmethod
     def resolve_username(self, info, **kwargs):
@@ -92,8 +92,8 @@ class Profile(DjangoObjectType):
         return self.products.all()
 
     @staticmethod
-    def resolve_bids(self, info, **kwargs):
-        return self.bids.all()
+    def resolve_offers(self, info, **kwargs):
+        return self.offers.all()
 
 
 
