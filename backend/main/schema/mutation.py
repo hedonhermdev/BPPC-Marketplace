@@ -72,23 +72,6 @@ class UpdateProduct(MutationPayload, graphene.Mutation):
         return UpdateProduct(errors=errors, product=product)
 
 
-class CreateProfile(MutationPayload, graphene.Mutation):
-    class Arguments:
-        input = ProfileInput()
-
-    profile = graphene.Field(Profile)
-
-    @login_required
-    def mutate(root, info, input=None):
-        errors = []
-
-        user = info.context.user
-        profile = utils.create_profile(user, **input.__dict__)
-        viewlog.debug(f"New Profile created : {profile.to_dict()}")
-
-        return CreateProfile(errors=errors, profile = profile)
-
-
 class UpdateProfile(MutationPayload, graphene.Mutation):
     class Arguments:
         username = graphene.String(required = True)
@@ -211,7 +194,6 @@ class UpdateOffer(MutationPayload, graphene.Mutation):
 class Mutation:
     create_product = CreateProduct.Field()
     update_product = UpdateProduct.Field()
-    create_profile = CreateProfile.Field()
     update_profile = UpdateProfile.Field()
     update_wishlist = UpdateWishlist.Field()
     create_offer = CreateOffer.Field()
