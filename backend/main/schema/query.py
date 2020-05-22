@@ -7,7 +7,7 @@ from main.schema.types import (
     Category,
     Profile,
     Product,
-    ProductBid,
+    ProductOffer,
     ProductPaginated
 )
 
@@ -17,11 +17,11 @@ class Query:
     all_categories = graphene.List(Category)
     all_products = graphene.List(Product)
     all_profiles = graphene.List(Profile)
-    category = graphene.List(Category)
+    category = graphene.Field(Category, name=graphene.String())
     product = graphene.Field(Product, id=graphene.Int())
     profile = graphene.Field(Profile, id=graphene.Int(), username=graphene.String(), email=graphene.String())
     my_profile = graphene.Field(Profile)
-    product_bid = graphene.List(ProductBid, id=graphene.Int())
+    product_offer = graphene.List(ProductOffer, id=graphene.Int())
     wishlist = graphene.List(Product)
     products = graphene.Field(ProductPaginated, page=graphene.Int(), pagesize=graphene.Int())
 
@@ -40,6 +40,7 @@ class Query:
     @login_required
     def resolve_category(self, info, **kwargs):
         name = kwargs.get('name')
+
         if name is not None:
             return models.Category.objects.get(name=name)
         return None
@@ -86,14 +87,14 @@ class Query:
         return None
         
     @login_required
-    def resolve_product_bid(self, info, **kwargs):
+    def resolve_product_offer(self, info, **kwargs):
         id = kwargs.get('id')
         if id is not None:
             try:
                 product = models.Product.objects.get(id=id)
             except ObjectDoesNotExist:
                 return None
-            return product.bids.all()
+            return product.offers.all()
 
         return None
 

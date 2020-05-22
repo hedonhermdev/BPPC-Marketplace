@@ -34,7 +34,7 @@ def authenticate(request):
 
     # Login if user already exists.
 
-    username, domain = email.split('@')
+    username, _ = email.split('@')
 
     try: 
         user = User.objects.get(username=username)
@@ -43,19 +43,9 @@ def authenticate(request):
     except User.DoesNotExist:
         pass
 
-    # Bitsian or Non Bitsian
-    if domain == "pilani.bits-pilani.ac.in":
-        # Bitsians can be sellers
-        permission_level = Profile.SELLER
-    else:
-        # Non-bitsians can be buyers only.
-        permission_level = Profile.BUYER
-
-
     user = User(username=email.split("@")[0])
     user.set_password(generate_random_password())
-    user.save()
-    user.profile.permission_level = permission_level   
+    user.save()   
     user.profile.email = email
     user.profile.save()
     token = get_jwt_with_user(user)

@@ -4,6 +4,11 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+
+# It is a port of Google's libphonenuber library, which powers Android's phone number handling
+# Universal Way to store international mobile numbers
+from phonenumber_field .modelfields import PhoneNumberField
+
 from PIL import Image
 
 import uuid
@@ -45,8 +50,7 @@ class Profile(models.Model):
     name = models.CharField(max_length=100)
     avatar = models.ManyToManyField('Avatar', symmetrical=False, blank=True)
     hostel = models.CharField(choices=HOSTEL_CHOICES, max_length=2)
-    room_no = models.PositiveIntegerField(blank=True, null=True)
-    contact_no = models.PositiveIntegerField(blank=True, null=True)
+    contact_no = PhoneNumberField(blank=True, null=True, unique=True)
     rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
     num_ratings = models.IntegerField(default=0)
     email = models.EmailField()
@@ -63,7 +67,6 @@ class Profile(models.Model):
             "user": self.user.username,
             "name": self.name,
             "hostel": self.hostel,
-            "room_no": self.room_no,
             "contact_no": self.contact_no,
             "rating": self.rating,
             "num_rating": self.num_ratings,
@@ -74,12 +77,26 @@ class Profile(models.Model):
         return {
             "pk": self.pk,
             "user": self.user.pk,
-            "name": self.name,
+            "name": self.name, 
         }
 
     def __str__(self):
         return f"Profile({self.user.username})"
 
+    def save(self, *args, **kwargs):
+        domain = self.email.split('@')
+
+            # Bitsian or Non Bitsian
+        if domain == "pilani.bits-pilani.ac.in":
+            # Bitsians can be sellers
+            permission_level = Profile.SELLER
+        else:
+            # Non-bitsians can be buyers only.
+            permission_level = Profile.BUYER
+
+        self.permission_level = permission_level  
+
+        super().save(*args, **kwargs)
 
 @receiver(post_save, sender=User)
 def create_or_update_profile(sender, instance, created, **kwargs):
@@ -108,7 +125,7 @@ class Avatar(models.Model):
 
 class ProfileRating(models.Model):
     rating_for = models.ForeignKey(
-        Profile, related_name="ratings_recieved", on_delete=models.CASCADE
+        Profile, related_name="ratings_received", on_delete=models.CASCADE
     )
     rated_by = models.ForeignKey(
         Profile, related_name="rating_given", on_delete=models.CASCADE
@@ -164,7 +181,7 @@ class Product(models.Model):
     )
     base_price = models.IntegerField(blank=False, null=False)
     description = models.CharField(max_length=300)
-    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True)
+    category = models.ForeignKey('Category', related_name="products", on_delete=models.SET_NULL, null=True)
     sold = models.BooleanField(default=False)
     is_ticket = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
@@ -204,24 +221,24 @@ class ImageModel(models.Model):
     #     pass
 
 
-class ProductBid(models.Model):
-    bidder = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="bids")
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="bids")
+class ProductOffer(models.Model):
+    offerer = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="offers")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="offers")
     amount = models.IntegerField()
     message = models.CharField(max_length=400)
 
-    def validate_bid_amount(self):
+    def validate_offer_amount(self):
         """
-        Check if bid amount is greater than product's base price
+        Check if offer amount is greater than product's base price
         """
         assert self.amount > product.base_price
 
     def __str__(self):
-        return f"ProductBid({self.product.name}, {self.bidder.name}, {self.amount})"
+        return f"ProductOffer({self.product.name}, {self.offerer.name}, {self.amount})"
 
     def to_dict(self):
         return {
-            "bidder": self.bidder.name,
+            "offerer": self.offerer.name,
             "product": self.product.name,
             "amount": self.amount,
         }

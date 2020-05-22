@@ -2,8 +2,8 @@ import graphene
 from graphql_jwt.decorators import login_required, user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
 
-from main.schema.inputs import ProductInput, ProfileInput, ProductBidInput
-from main.schema.types import Product, Profile, Wishlist, ProductBid
+from main.schema.inputs import ProductInput, ProfileUpdateInput, ProductOfferInput
+from main.schema.types import Product, Profile, Wishlist, ProductOffer
 from main.schema import utils
 
 from main import models
@@ -72,27 +72,10 @@ class UpdateProduct(MutationPayload, graphene.Mutation):
         return UpdateProduct(errors=errors, product=product)
 
 
-class CreateProfile(MutationPayload, graphene.Mutation):
-    class Arguments:
-        input = ProfileInput()
-
-    profile = graphene.Field(Profile)
-
-    @login_required
-    def mutate(root, info, input=None):
-        errors = []
-
-        user = info.context.user
-        profile = utils.create_profile(user, **input.__dict__)
-        viewlog.debug(f"New Profile created : {profile.to_dict()}")
-
-        return CreateProfile(errors=errors, profile = profile)
-
-
 class UpdateProfile(MutationPayload, graphene.Mutation):
     class Arguments:
         username = graphene.String(required = True)
-        input = ProfileInput()
+        input = ProfileUpdateInput()
 
     profile = graphene.Field(Profile)
 
@@ -102,7 +85,7 @@ class UpdateProfile(MutationPayload, graphene.Mutation):
 
         if input is None:
             errors.append("Must provide an input to perform mutation. ")
-            return UpdateProfile(errors=erros, profile=None)
+            return UpdateProfile(errors=errors, profile=None)
         try:
             profile = models.User.objects.get(username=username).profile
         except ObjectDoesNotExist:
@@ -146,12 +129,12 @@ class UpdateWishlist(MutationPayload, graphene.Mutation):
         return UpdateWishlist(errors=errors, wishlist=wishlist)
 
 
-class CreateBid(MutationPayload, graphene.Mutation):
+class CreateOffer(MutationPayload, graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
-        input = ProductBidInput()
+        input = ProductOfferInput()
 
-    bid = graphene.Field(ProductBid)
+    offer = graphene.Field(ProductOffer)
 
     @login_required
     @user_passes_test(lambda user: user.profile.permission_level >= models.Profile.BUYER)
@@ -160,60 +143,59 @@ class CreateBid(MutationPayload, graphene.Mutation):
         try:
             product = models.Product.objects.get(id=id)
         except ObjectDoesNotExist:
-            errors.append(f"Product to bid on, not found")
-            return CreateBid(errors=errors, bid=None)
+            errors.append(f"Product to offer on, not found")
+            return CreateOffer(errors=errors, offer=None)
 
         profile = info.context.user.profile
         if(product.seller == profile):
-            errors.append(f"User can't bid on their on product")
-            return CreateBid(errors=errors, bid=None)
+            errors.append(f"User cannot offer on their own product")
+            return CreateOffer(errors=errors, offer=None)
 
         try:
-            previous_bid = list(models.ProductBid.objects.filter(bidder=profile, product=product))[-1]
+            previous_offer = list(models.ProductOffer.objects.filter(offerer=profile, product=product))[-1]
         except:
-            previous_bid = None
+            previous_offer = None
 
-        if(previous_bid and previous_bid.amount >= input.amount):
-            errors.append(f"You can't bid less than or equal to your previous bid.")
-            return CreateBid(errors=errors, bid=None)
+        if(previous_offer and previous_offer.amount >= input.amount):
+            errors.append(f"You cannot offer less than or equal to your previous offer")
+            return CreateOffer(errors=errors, offer=None)
 
-        bid = utils.create_bid(profile, product, **input.__dict__)
-        viewlog.debug(f"New Bid: {bid.to_dict()}")
+        offer = utils.create_offer(profile, product, **input.__dict__)
+        viewlog.debug(f"New Offer: {offer.to_dict()}")
 
-        return CreateBid(errors=errors, bid=bid)
+        return CreateOffer(errors=errors, offer=offer)
 
 
-class UpdateBid(MutationPayload, graphene.Mutation):
+class UpdateOffer(MutationPayload, graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
-        input = ProductBidInput()
+        input = ProductOfferInput()
 
-    bid = graphene.Field(ProductBid)
+    offer = graphene.Field(ProductOffer)
 
     @login_required
     def mutate(root, info, id, input=None):
         errors = []
 
         try:
-            bid = models.ProductBid.objects.get(id=id)
+            offer = models.ProductOffer.objects.get(id=id)
         except ObjectDoesNotExist:
-            errors.append(f"Bid not found")
-            return UpdateBid(errors=errors, bid=None)
+            errors.append(f"Offer not found")
+            return UpdateOffer(errors=errors, offer=None)
         
-        if (bid.bidder == info.context.user.profile):
-            bid = utils.update_bid(bid, **input.__dict__)
-            return UpdateBid(errors=errors, bid=bid)
+        if (offer.offerer == info.context.user.profile):
+            offer = utils.update_offer(offer, **input.__dict__)
+            return UpdateOffer(errors=errors, offer=offer)
         else:
-            errors.append(f"Only the user can change his bid")
-            return UpdateBid(errors=errors, bid=None)
+            errors.append(f"Only the user can change his offer.")
+            return UpdateOffer(errors=errors, offer=None)
 
 
 class Mutation:
     create_product = CreateProduct.Field()
     update_product = UpdateProduct.Field()
-    create_profile = CreateProfile.Field()
     update_profile = UpdateProfile.Field()
     update_wishlist = UpdateWishlist.Field()
-    create_bid = CreateBid.Field()
-    update_bid = UpdateBid.Field()
+    create_offer = CreateOffer.Field()
+    update_offer = UpdateOffer.Field()
 
