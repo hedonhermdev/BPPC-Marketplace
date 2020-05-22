@@ -13,13 +13,6 @@ from PIL import Image
 
 import uuid
 
-HOSTEL_CHOICES = (
-    ("SR", "SR Bhavan"),
-    ("RP", "Rana Pratap Bhavan"),
-    ("GN", "Gandhi Bhavan"),
-    ("KR", "Krishna Bhavan"),
-    ("MR", "Meera Bhavan"),
-)
 
 CATEGORY_CHOICES = (
     "Stationary",
@@ -33,9 +26,17 @@ CATEGORY_CHOICES = (
 
 # Create your models here.
 class Profile(models.Model):
+    # --- Hostel Choices ---
+    HOSTEL_CHOICES = (
+        ("SR", "SR Bhavan"),
+        ("RP", "Rana Pratap Bhavan"),
+        ("GN", "Gandhi Bhavan"),
+        ("KR", "Krishna Bhavan"),
+        ("MR", "Meera Bhavan"),
+    )
     # --- Permission levels ---
     BANNED = 0
-    BUYER = 1
+    BUYER = 2
     SELLER = 2
     ADMIN = 3
     LEVELS = (
@@ -54,6 +55,9 @@ class Profile(models.Model):
     rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
     num_ratings = models.IntegerField(default=0)
     email = models.EmailField()
+
+    # Field to signify if user has filled all required details in profile. 
+    is_complete = models.BooleanField(default=False)
 
     permission_level = models.SmallIntegerField(choices=LEVELS, default=2)
 
@@ -83,20 +87,7 @@ class Profile(models.Model):
     def __str__(self):
         return f"Profile({self.user.username})"
 
-    def save(self, *args, **kwargs):
-        domain = self.email.split('@')
 
-            # Bitsian or Non Bitsian
-        if domain == "pilani.bits-pilani.ac.in":
-            # Bitsians can be sellers
-            permission_level = Profile.SELLER
-        else:
-            # Non-bitsians can be buyers only.
-            permission_level = Profile.BUYER
-
-        self.permission_level = permission_level  
-
-        super().save(*args, **kwargs)
 
 @receiver(post_save, sender=User)
 def create_or_update_profile(sender, instance, created, **kwargs):
@@ -108,7 +99,29 @@ def create_or_update_profile(sender, instance, created, **kwargs):
         Profile.objects.create(user=instance)
         Wishlist.objects.create(profile=instance.profile)
     instance.profile.save()
-    
+
+
+@receiver(post_save, sender=Profile)
+def set_permission_level(sender, instance, created, **kwargs):
+    if created:
+        domain = instance.email.split('@')
+
+            # Bitsian or Non Bitsian
+        if domain == "pilani.bits-pilani.ac.in":
+            # Bitsians can be sellers
+            permission_level = Profile.SELLER
+        else:
+            # Non-bitsians can be buyers only.
+            permission_level = Profile.BUYER
+
+        instance.permission_level = permission_level  
+
+@receiver(pre_save, sender=Profile)
+def update_is_complete(sender, instance, **kwargs):
+    if (instance.name!= "") and (instance.hostel != "") and (instance.contact_no != ""):
+        instance.is_complete = True
+    else:
+        instance.is_complete = False
 
 class Avatar(models.Model):
     """

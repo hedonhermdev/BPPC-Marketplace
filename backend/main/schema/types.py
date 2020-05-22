@@ -1,7 +1,6 @@
 import graphene
 from graphene_django.types import DjangoObjectType, ObjectType
 from main import models
-from main.models import HOSTEL_CHOICES
 
         
 class ProductOffer(DjangoObjectType):
@@ -87,7 +86,7 @@ class Profile(DjangoObjectType):
     
     @staticmethod
     def resolve_hostel(self, info, **kwargs):
-        return getattr(HOSTEL_CHOICES, self.hostel, '')
+        return getattr(models.Profile.HOSTEL_CHOICES, self.hostel, '')
        
     @staticmethod
     def resolve_products(self, info, **kwargs):

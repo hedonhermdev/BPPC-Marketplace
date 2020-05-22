@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from main.auth_helpers import generate_random_password, get_jwt_with_user
+from main.auth_helpers import create_user_from_email, get_jwt_with_user
 from main.models import User, Profile
 
 import logging
@@ -38,21 +38,14 @@ def authenticate(request):
 
     try: 
         user = User.objects.get(username=username)
-        token = get_jwt_with_user(user)
-        return Response({"token": token, "isNew": False}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
-        pass
+        user = create_user_from_email
 
-    user = User(username=email.split("@")[0])
-    user.set_password(generate_random_password())
-    user.save()   
-    user.profile.email = email
-    user.profile.save()
     token = get_jwt_with_user(user)
 
     log.info(f"{request.path}: created user with email {user.email}")
     return Response(
-        {"token": token, "username": user.username, "isNew": True},
+        {"token": token, "username": user.username, "isComplete": user.profile.is_complete},
         status=status.HTTP_201_CREATED,
     )
 
