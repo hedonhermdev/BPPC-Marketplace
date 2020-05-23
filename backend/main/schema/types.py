@@ -22,11 +22,23 @@ class UserReport(DjangoObjectType):
 class Product(DjangoObjectType):
     class Meta:
         model = models.Product
-        fields = ['id', 'name', 'seller', 'base_price', 'offers', 'description', 'category', 'visible', 'sold'] 
+        fields = [
+            'id', 
+            'name', 
+            'seller', 
+            'expected_price', 
+            'offers', 
+            'description', 
+            'category', 
+            'visible', 
+            'sold', 
+            'is_negotiable'
+            ] 
         filter_fields = {
             'visible': ['exact'],
             'sold': ['exact'],
-            'base_price': ['gt', 'lt']
+            'expected_price': ['gt', 'lt'],
+            'is_negotiable': ['exact']
         }
 
     images = graphene.List(graphene.String)

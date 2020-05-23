@@ -175,6 +175,8 @@ class Category(models.Model):
     def __str__(self):
         return f"Category({self.name})"
 
+    class Meta:
+        verbose_name_plural = "Categories"
 
 class ProductManager(models.Manager):
     def tickets(self):
@@ -191,13 +193,15 @@ class Product(models.Model):
         null=True,
         blank=True,
     )
-    base_price = models.IntegerField(blank=False, null=False)
+    expected_price = models.PositiveIntegerField(blank=False, null=False)
     description = models.CharField(max_length=300)
     category = models.ForeignKey('Category', related_name="products", on_delete=models.SET_NULL, null=True)
     sold = models.BooleanField(default=False)
     is_ticket = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     visible = models.BooleanField(default=True)
+    is_negotiable = models.BooleanField(default=False)
+    num_offers = models.IntegerField(default=0)
 
     objects = ProductManager()
 
@@ -207,7 +211,7 @@ class Product(models.Model):
             "name": self.name,
             # "images": [im.url for im in self.images]
             "seller": self.seller.pk,
-            "base_price": self.base_price,
+            "expected_price": self.expected_price,
             "description": self.description,
             "sold": self.sold,
             "is_ticket": self.is_ticket,
@@ -243,7 +247,7 @@ class ProductOffer(models.Model):
         """
         Check if offer amount is greater than product's base price
         """
-        assert self.amount > product.base_price
+        assert self.amount > product.expected_price
 
     def __str__(self):
         return f"ProductOffer({self.product.name}, {self.offerer.name}, {self.amount})"
@@ -255,6 +259,15 @@ class ProductOffer(models.Model):
             "amount": self.amount,
         }
 
+@receiver(post_save, sender=ProductOffer)
+def update_product_offers(sender, instance, created, **kwargs):
+    """
+    Update the number of offers of a product when a new offer is made.
+    """
+    if created:
+        product = instance.product
+        product.num_offers += 1
+        product.save()
 
 class ProductQnA(models.Model):
     """
@@ -272,6 +285,10 @@ class ProductQnA(models.Model):
 
     def __str__(self):
         return f"Question({self.question}), Product({self.product.name}), Asked by({self.asked_by.name})"
+    
+    class Meta:
+        verbose_name = "Product QnA"
+        verbose_name_plural = "Products QnA"
 
 
 class UserReport(models.Model):
