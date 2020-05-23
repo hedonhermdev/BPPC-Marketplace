@@ -163,6 +163,8 @@ class Category(models.Model):
     def __str__(self):
         return f"Category({self.name})"
 
+    class Meta:
+        verbose_name_plural = "Categories"
 
 class ProductManager(models.Manager):
     def tickets(self):
@@ -186,6 +188,8 @@ class Product(models.Model):
     is_ticket = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     visible = models.BooleanField(default=True)
+    is_negotiable = models.BooleanField(default=False)
+    num_offers = models.IntegerField(default=0)
 
     objects = ProductManager()
 
@@ -243,6 +247,15 @@ class ProductOffer(models.Model):
             "amount": self.amount,
         }
 
+@receiver(post_save, sender=ProductOffer)
+def update_product_offers(sender, instance, created, **kwargs):
+    """
+    Update the number of offers of a product when a new offer is made.
+    """
+    if created:
+        product = instance.product
+        product.num_offers += 1
+        product.save()
 
 class ProductQnA(models.Model):
     """
@@ -260,6 +273,10 @@ class ProductQnA(models.Model):
 
     def __str__(self):
         return f"Question({self.question}), Product({self.product.name}), Asked by({self.asked_by.name})"
+    
+    class Meta:
+        verbose_name = "Product QnA"
+        verbose_name_plural = "Products QnA"
 
 
 class ProductReport(models.Model):
