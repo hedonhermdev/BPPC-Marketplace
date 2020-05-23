@@ -193,7 +193,7 @@ class Product(models.Model):
         null=True,
         blank=True,
     )
-    expected_price = models.IntegerField(blank=False, null=False)
+    expected_price = models.PositiveIntegerField(blank=False, null=False)
     description = models.CharField(max_length=300)
     category = models.ForeignKey('Category', related_name="products", on_delete=models.SET_NULL, null=True)
     sold = models.BooleanField(default=False)
