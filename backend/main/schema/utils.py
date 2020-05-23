@@ -27,7 +27,7 @@ def create_product(seller, **kwargs, ):
     p = models.Product()
     p.seller = seller
     p.name = kwargs.get('name')
-    p.base_price = kwargs.get('base_price')
+    p.expected_price = kwargs.get('expected_price')
     p.description = kwargs.get('description')
     p.category_id = kwargs.get('category_id')
     p.save()
@@ -40,11 +40,11 @@ def update_product(product, **kwargs):
         Given a product instance, and a set of updates, update the product instance and save it to the database. Utility for the UpdateProduct mutation.
     Updatable attributes of product are:
     1. Name
-    2. Base Price
+    2. Expected Price
     3. Description
     4. Category
     """
-    fields = ['name', 'base_price', 'description', 'category_id']
+    fields = ['name', 'expected_price', 'description', 'category_id']
     print(kwargs)
     for field in fields:
         update = kwargs.get(field)

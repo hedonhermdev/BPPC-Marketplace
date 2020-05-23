@@ -179,7 +179,7 @@ class Product(models.Model):
         null=True,
         blank=True,
     )
-    base_price = models.IntegerField(blank=False, null=False)
+    expected_price = models.IntegerField(blank=False, null=False)
     description = models.CharField(max_length=300)
     category = models.ForeignKey('Category', related_name="products", on_delete=models.SET_NULL, null=True)
     sold = models.BooleanField(default=False)
@@ -195,7 +195,7 @@ class Product(models.Model):
             "name": self.name,
             # "images": [im.url for im in self.images]
             "seller": self.seller.pk,
-            "base_price": self.base_price,
+            "expected_price": self.expected_price,
             "description": self.description,
             "sold": self.sold,
             "is_ticket": self.is_ticket,
@@ -231,7 +231,7 @@ class ProductOffer(models.Model):
         """
         Check if offer amount is greater than product's base price
         """
-        assert self.amount > product.base_price
+        assert self.amount > product.expected_price
 
     def __str__(self):
         return f"ProductOffer({self.product.name}, {self.offerer.name}, {self.amount})"
