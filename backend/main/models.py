@@ -103,8 +103,8 @@ def create_or_update_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Profile)
 def set_permission_level(sender, instance, created, **kwargs):
-    if created:
-        domain = instance.email.split('@')
+    if instance.email != "" and instance.permission_level is not None:
+        domain = instance.email.split('@')[1]
 
             # Bitsian or Non Bitsian
         if domain == "pilani.bits-pilani.ac.in":
@@ -113,8 +113,7 @@ def set_permission_level(sender, instance, created, **kwargs):
         else:
             # Non-bitsians can be buyers only.
             permission_level = Profile.BUYER
-
-        instance.permission_level = permission_level  
+            instance.permission_level = permission_level  
 
 @receiver(pre_save, sender=Profile)
 def update_is_complete(sender, instance, **kwargs):
@@ -275,21 +274,26 @@ class ProductQnA(models.Model):
         return f"Question({self.question}), Product({self.product.name}), Asked by({self.asked_by.name})"
 
 
-class ProductReport(models.Model):
-    product = models.ForeignKey('Product', related_name='reports', on_delete=models.CASCADE)
-    message = models.CharField(max_length=400)
+class UserReport(models.Model):
+    CATEGORY_CHOICES = (
+        (1, "Spam"),
+        (2, "Profanity"),
+        (3, "Refusal to Pay"),
+    )
+    reported_user = models.ForeignKey('Profile', related_name='reports', on_delete=models.CASCADE)
     reported_by = models.ForeignKey('Profile', on_delete=models.CASCADE)
+    category = models.SmallIntegerField(choices=CATEGORY_CHOICES)
 
 
-@receiver(post_save, sender=ProductReport)
-def moderate_product(sender, instance, **kwargs):
+@receiver(post_save, sender=UserReport)
+def moderate_profile(sender, instance, **kwargs):
     """
         Make a product not visible if it has been reported more than 5 times.
     """
     # TODO: Implement mechanism to notify moderators.
     MAX_ALLOWED_REPORTS = 5
-    product = instance.product
-    if product.reports.count() > MAX_ALLOWED_REPORTS:
-        product.visible = False
+    profile = instance.profile
+    if profile.reports.count() > MAX_ALLOWED_REPORTS:
+        profile.permission_level = Profile.BANNED
         product.save()
 

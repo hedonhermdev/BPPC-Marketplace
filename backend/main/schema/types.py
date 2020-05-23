@@ -13,10 +13,10 @@ class ProductQnA(DjangoObjectType):
         model = models.ProductQnA
         fields = ['product', 'question', 'answer', 'asked_by', 'is_answered']
 
-class ProductReport(DjangoObjectType):
+class UserReport(DjangoObjectType):
     class Meta:
-        model = models.ProductReport
-        fields = ['product', 'message', 'reported_by']
+        model = models.UserReport
+        fields = ['reported_user', 'category', 'reported_by']
 
 
 class Product(DjangoObjectType):
@@ -32,7 +32,6 @@ class Product(DjangoObjectType):
     images = graphene.List(graphene.String)
     offers = graphene.List(ProductOffer)
     questions = graphene.List(ProductQnA)
-    reports = graphene.List(ProductReport)
     
     @staticmethod
     def resolve_images(self, info, **kwargs):
@@ -72,6 +71,7 @@ class Profile(DjangoObjectType):
     hostel = graphene.String()
     products = graphene.List(Product)
     offers = graphene.List(ProductOffer)
+    reports = graphene.List(UserReport)
 
     @staticmethod
     def resolve_username(self, info, **kwargs):
@@ -96,6 +96,9 @@ class Profile(DjangoObjectType):
     def resolve_offers(self, info, **kwargs):
         return self.offers.all()
 
+    @staticmethod
+    def resolve_reports(self, info, **kwargs):
+        return self.reports.all()
 
 
 class Wishlist(DjangoObjectType):

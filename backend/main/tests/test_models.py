@@ -1,7 +1,9 @@
 from django.test import TestCase
 
-from main.models import User, Profile
+from main.models import User, Profile, ProfileRating
 from main.auth_helpers import create_user_from_email
+
+import random
 
 class TestUserProfile(TestCase):
     def create_bitsian_user(self):
@@ -37,3 +39,19 @@ class TestUserProfile(TestCase):
         profile.contact_no = "+911234567890"
         profile.save()
         self.assertEqual(profile.is_complete, True)
+
+
+
+class TestProfileRating(TestCase):
+    def create_test_user(self, email):
+        return create_user_from_email(email)
+
+    def test_user_can_rate_user(self):
+        RATING = 4.0
+        profile1 = self.create_test_user("userone@gmail.com").profile
+        profile2 = self.create_test_user("usertwo@gmail.com").profile
+        
+        rating = ProfileRating(rating_for=profile1, rated_by=profile2, rating=RATING)
+        rating.save()
+        # Test that user's profile rating is updated.
+        self.assertEqual(profile1.rating, RATING)

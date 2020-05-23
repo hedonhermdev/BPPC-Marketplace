@@ -7,7 +7,7 @@ from main.models import (
     ProductOffer,
     ProductQnA,
     ProfileRating,
-    ProductReport,
+    UserReport,
     Category,
     Wishlist
 )
@@ -19,6 +19,6 @@ admin.site.register(ImageModel)
 admin.site.register(ProductOffer)
 admin.site.register(ProductQnA)
 admin.site.register(ProfileRating)
-admin.site.register(ProductReport)
+admin.site.register(UserReport)
 admin.site.register(Category)
 admin.site.register(Wishlist)
