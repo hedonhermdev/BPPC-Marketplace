@@ -161,14 +161,14 @@ class CreateOffer(MutationPayload, graphene.Mutation):
             return CreateOffer(errors=errors, offer=None)
 
         if (not product.is_negotiable):
-            message = {**input.__dict__}['message'] 
+            message = input['message'] 
             offer = utils.create_offer(profile, product, amount = product.expected_price, message = message)
             viewlog.debug(f"New Offer: {offer.to_dict()}")
 
             return CreateOffer(errors=errors, offer=offer)
         
         try:
-            assert {**input.__dict__}['amount'] != None
+            assert input['amount'] != None
         except:
             errors.append(f"Missing argument 'amount'")
             return CreateOffer(errors=errors, offer=None)
