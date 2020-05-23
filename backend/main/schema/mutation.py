@@ -155,9 +155,22 @@ class CreateOffer(MutationPayload, graphene.Mutation):
             previous_offer = list(models.ProductOffer.objects.filter(offerer=profile, product=product))[-1]
         except:
             previous_offer = None
+        
+        if (previous_offer):
+            errors.append(f"You cannot create multiple offers")
+            return CreateOffer(errors=errors, offer=None)
 
-        if(previous_offer and previous_offer.amount >= input.amount):
-            errors.append(f"You cannot offer less than or equal to your previous offer")
+        if (not product.is_negotiable):
+            message = {**input.__dict__}['message'] 
+            offer = utils.create_offer(profile, product, amount = product.expected_price, message = message)
+            viewlog.debug(f"New Offer: {offer.to_dict()}")
+
+            return CreateOffer(errors=errors, offer=offer)
+        
+        try:
+            assert {**input.__dict__}['amount'] != None
+        except:
+            errors.append(f"Missing argument 'amount'")
             return CreateOffer(errors=errors, offer=None)
 
         offer = utils.create_offer(profile, product, **input.__dict__)
@@ -166,29 +179,29 @@ class CreateOffer(MutationPayload, graphene.Mutation):
         return CreateOffer(errors=errors, offer=offer)
 
 
-class UpdateOffer(MutationPayload, graphene.Mutation):
-    class Arguments:
-        id = graphene.Int(required=True)
-        input = ProductOfferInput()
+# class UpdateOffer(MutationPayload, graphene.Mutation):
+#     class Arguments:
+#         id = graphene.Int(required=True)
+#         input = ProductOfferInput()
 
-    offer = graphene.Field(ProductOffer)
+#     offer = graphene.Field(ProductOffer)
 
-    @login_required
-    def mutate(root, info, id, input=None):
-        errors = []
+#     @login_required
+#     def mutate(root, info, id, input=None):
+#         errors = []
 
-        try:
-            offer = models.ProductOffer.objects.get(id=id)
-        except ObjectDoesNotExist:
-            errors.append(f"Offer not found")
-            return UpdateOffer(errors=errors, offer=None)
+#         try:
+#             offer = models.ProductOffer.objects.get(id=id)
+#         except ObjectDoesNotExist:
+#             errors.append(f"Offer not found")
+#             return UpdateOffer(errors=errors, offer=None)
         
-        if (offer.offerer == info.context.user.profile):
-            offer = utils.update_offer(offer, **input.__dict__)
-            return UpdateOffer(errors=errors, offer=offer)
-        else:
-            errors.append(f"Only the user can change his offer.")
-            return UpdateOffer(errors=errors, offer=None)
+#         if (offer.offerer == info.context.user.profile):
+#             offer = utils.update_offer(offer, **input.__dict__)
+#             return UpdateOffer(errors=errors, offer=offer)
+#         else:
+#             errors.append(f"Only the user can change his offer.")
+#             return UpdateOffer(errors=errors, offer=None)
 
 
 class Mutation:
@@ -197,5 +210,5 @@ class Mutation:
     update_profile = UpdateProfile.Field()
     update_wishlist = UpdateWishlist.Field()
     create_offer = CreateOffer.Field()
-    update_offer = UpdateOffer.Field()
+    # update_offer = UpdateOffer.Field()
 
