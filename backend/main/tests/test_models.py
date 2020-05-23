@@ -29,7 +29,8 @@ class TestUserProfile(TestCase):
         self.assertEqual(profile.permission_level, Profile.BUYER)
 
     def test_profile_is_complete(self):
-        user = create_bitsian_user()
+        user = self.create_bitsian_user()
+        profile = user.profile
         self.assertEqual(profile.is_complete, False)
         profile.name = "John Doe"
         profile.hostel = "SR"
