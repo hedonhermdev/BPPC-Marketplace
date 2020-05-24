@@ -80,18 +80,18 @@ def create_offer(profile, product, **kwargs):
 
     return offer
 
-def update_offer(offer, **kwargs):
+# def update_offer(offer, **kwargs):
 
-    fields = ['amount', 'message']
+#     fields = ['amount', 'message']
 
-    for field in fields:
-        update = kwargs.get(field)
-        if update is not None:
-            setattr(offer, field, update)
+#     for field in fields:
+#         update = kwargs.get(field)
+#         if update is not None:
+#             setattr(offer, field, update)
 
-    offer.save()
+#     offer.save()
 
-    return offer
+#     return offer
 
 def profile_rating(rating_for, rated_by, rating):
     """
