@@ -97,19 +97,6 @@ class TestProduct(TestCase):
         product.save()
         self.assertEqual(product.sold, True)
     
-    def test_add_product_no_description(self):
-        product = Product()
-        is_sellable = True
-        product.name = "XYZ"
-        product.expected_price = 20
-        product.category = self.create_test_category(name='xxyz')
-        product.seller = self.create_test_user("userone@gmail.com").profile
-        try:
-            product.save()
-        except:
-            is_sellable=False
-        self.assertEqual(is_sellable,False)
-
 class TestProductOffer(TestCase):
     def create_test_user(self, email):
         return create_user_from_email(email)
