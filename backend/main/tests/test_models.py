@@ -60,59 +60,48 @@ class TestProduct(TestCase):
         return create_user_from_email(email)
     
     def create_test_category(self, name):
-        category = Category(name=name)
+        category = Category(id=1, name=name)
+        category.save()
         return category
     
     def create_test_product(self, name='bbc'):
-        product_name = self.name
+        product_name = name
         profile1 = self.create_test_user("userone@gmail.com").profile
         basePrice = 100
         description = "Some unknown english words"
-        category = create_test_category(name='xyzCategory')
-        product = Product(name=product_name, seller=profile1,
-                          base_price=basePrice, description=description,
+        category = self.create_test_category(name='xyzCategory')
+        product = Product(id=1, name=product_name, seller=profile1,
+                          expected_price=basePrice, description=description,
                           category=category)
         product.save()
         return product
     
-    def product_is_complete(self):
-        product = Product()
-        self.assertEqual(product.is_complete, False)
-        product.name = "XYZ"
-        product.base_price = 200
-        product.description = "Description"
-        product.category = self.create_test_category(name="xxyz")
-        product.seller = self.create_test_user("userone@gmail.com").profile
-        product.save()
-        self.assertEqual(product.is_complete, True)
-    
-    def product_is_visible(self):
+    def test_product_is_visible(self):
         product = self.create_test_product()
-        self.assertEqual(product.is_visible, True)
-        product.is_visible = False
+        self.assertEqual(product.visible, True)
+        product.visible = False
         product.save()
-        self.assertEqual(product.is_visible, False)
+        self.assertEqual(product.visible, False)
     
-    def product_is_ticket(self):
+    def test_product_is_ticket(self):
         product = self.create_test_product()
         self.assertEqual(product.is_ticket, False)
         product.is_ticket = True
         product.save()
         self.assertEqual(product.is_ticket, True)
     
-    def product_is_sold(self):
+    def test_product_is_sold(self):
         product = self.create_test_product()
-        self.assertEqual(product.is_visible, False)
-        product.is_visible = True
+        self.assertEqual(product.sold, False)
+        product.sold = True
         product.save()
-        self.assertEqual(product.is_visible, True)
+        self.assertEqual(product.sold, True)
     
-    def add_product_no_description(self):
+    def test_add_product_no_description(self):
         product = Product()
         is_sellable = True
         product.name = "XYZ"
-        product.base_price = 20
-        product.description = ""
+        product.expected_price = 20
         product.category = self.create_test_category(name='xxyz')
         product.seller = self.create_test_user("userone@gmail.com").profile
         try:
