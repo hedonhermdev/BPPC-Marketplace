@@ -104,3 +104,16 @@ def profile_rating(rating_for, rated_by, rating):
     rate_profile.save()
 
     return rate_profile
+
+def create_user_report(reported_by, **kwargs):
+    """
+        Given the attributes of a Profile(reported_user) and a Profile(reported_user) instance, create a new UserReport and save it to the database. Utility for the CreateUserReport mutation. 
+    """
+    r = models.UserReport()
+    r.reported_by = reported_by
+    r.reported_user = kwargs.get('reported_user')
+    r.category = kwargs.get('category')
+
+    r.save()
+
+    return r
