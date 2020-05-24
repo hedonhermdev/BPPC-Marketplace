@@ -54,6 +54,7 @@ class TestProfileRating(TestCase):
         # Test that user's profile rating is updated.
         self.assertEqual(profile1.rating, RATING)
 
+
 class TestProduct(TestCase):
     
     def create_test_user(self, email):

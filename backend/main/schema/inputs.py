@@ -4,8 +4,8 @@ class ProductInput(graphene.InputObjectType):
     id = graphene.ID()
     name = graphene.String()
     expected_price = graphene.Int()
+    is_negotiable = graphene.Boolean()
     description = graphene.String()
-    sold = graphene.Boolean()
     category_id = graphene.Int()
 
 class ProfileUpdateInput(graphene.InputObjectType):

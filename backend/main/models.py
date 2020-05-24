@@ -36,7 +36,7 @@ class Profile(models.Model):
     )
     # --- Permission levels ---
     BANNED = 0
-    BUYER = 2
+    BUYER = 1
     SELLER = 2
     ADMIN = 3
     LEVELS = (

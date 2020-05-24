@@ -28,6 +28,7 @@ def create_product(seller, **kwargs, ):
     p.seller = seller
     p.name = kwargs.get('name')
     p.expected_price = kwargs.get('expected_price')
+    p.is_negotiable = kwargs.get('is_negotiable')
     p.description = kwargs.get('description')
     p.category_id = kwargs.get('category_id')
     p.save()
