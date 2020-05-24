@@ -112,47 +112,55 @@ class TestProduct(TestCase):
 
 class TestProductOffer(TestCase):
     def create_test_user(self, email):
-        user = create_user_from_email(email)
-        return user
+        return create_user_from_email(email)
+    
+    def create_test_category(self, name):
+        category = Category(name=name)
+        category.save()
+        return category
 
-    def create_test_product(self, product_price = 500, is_negotiable = False):
-        name = "TechRe"
+    def create_test_product(self):
+        name = "TechRe Book" 
         seller = self.create_test_user('f20190000@pilani.bits-pilani.ac.in').profile
+        product_price = 500
         description = "Mint condition"
-        category = Category(name = "Books")
+        category = self.create_test_category(name = "Books")
         product = Product(
             name=name,
             seller=seller,
-            expected_price=expected_price,
+            expected_price=product_price,
             description=description,
             category=category,
-            is_negotiable=is_negotiable
             )
         product.save()
         return product
     
-    def create_test_offer(self, product_price = 500, offer_amount = None, is_negotiable = False):
-        offerer = self.create_test_user('f20190001@pilani.bits-pilani.ac.in').profile
-        product = self.create_test_product(product_price=product_price, is_negotiable=is_negotiable)
+    def create_test_offer(self, amount = 100, email='f20190001@pilani.bits-pilani.ac.in', product=None):
+        offerer = self.create_test_user(email=email).profile
+        if product:
+            product = product
+        else:
+            product = self.create_test_product()
         message = 'Looks good, interested'
-        offer = ProductOffer(offerer=offerer, product=product, amount=offer_amount, message=message)
+        offer = ProductOffer(offerer=offerer, product=product, amount=amount, message=message)
         offer.save()
         return offer
 
-    def offer_on_negotiable_product(self):
-        amount = 500
-        offer = create_test_offer(offer_amount = amount, is_negotiable = True)
+    def test_offer(self):
+        amount = 1000
+        offer = self.create_test_offer(amount=amount)
         self.assertEqual(offer.amount, amount)
-    
-    def offer_on_non_negotiable_product(self):
-        product_price = 500
-        offer_amount = 1000
-        offer = create_test_offer(product_price=product_price, offer_amount=offer_amount)
-        self.assertEqual(offer.amount, product_price)
+        self.assertEqual(offer.product.name, "TechRe Book")
+        self.assertEqual(offer.offerer.email, "f20190001@pilani.bits-pilani.ac.in")
+        self.assertEqual(offer.message, "Looks good, interested")
 
-    def null_offer_on_non_negotiable_product(self):
-        product_price = 500
-        offer_amount = None
-        offer = create_test_offer(product_price=product_price, offer_amount=offer_amount)
-        self.assertEqual(offer.amount, product_price)
+    def test_num_offers(self):
+        # Create offer on a product and test product's no. of offers
+        offer = self.create_test_offer(email="one@domain.com")
+        self.assertEqual(offer.product.num_offers, 1)
+
+        # Create another offer on the same product and test product's no. of offers
+        offer = self.create_test_offer(email="two@domain.com", product=offer.product)
+        self.assertEqual(offer.product.num_offers, 2)
+
 
