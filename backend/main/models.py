@@ -198,7 +198,7 @@ class Product(models.Model):
     category = models.ForeignKey('Category', related_name="products", on_delete=models.SET_NULL, null=True)
     sold = models.BooleanField(default=False)
     is_ticket = models.BooleanField(default=False)
-    created = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     visible = models.BooleanField(default=True)
     is_negotiable = models.BooleanField(default=False)
     num_offers = models.IntegerField(default=0)

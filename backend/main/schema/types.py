@@ -32,7 +32,8 @@ class Product(DjangoObjectType):
             'category', 
             'visible', 
             'sold', 
-            'is_negotiable'
+            'is_negotiable',
+            'created_at',
             ] 
         filter_fields = {
             'visible': ['exact'],

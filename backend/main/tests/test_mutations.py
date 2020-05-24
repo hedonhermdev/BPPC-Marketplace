@@ -54,3 +54,7 @@ class TestProductMutations(TestCase):
         self.assertIsNone(data)
 
     def test_product_attributes(self):
+        user = create_user_from_email('jaintirth24@gmail.com')
+        result = execute_mutation_with_user(self.query_string, user=user)
+
+
