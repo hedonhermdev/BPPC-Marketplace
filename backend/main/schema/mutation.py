@@ -2,8 +2,8 @@ import graphene
 from graphql_jwt.decorators import login_required, user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
 
-from main.schema.inputs import ProductInput, ProfileUpdateInput, ProductOfferInput
-from main.schema.types import Product, Profile, Wishlist, ProductOffer
+from main.schema.inputs import ProductInput, ProfileUpdateInput, ProductOfferInput, UserReportInput
+from main.schema.types import Product, Profile, Wishlist, ProductOffer, UserReport
 from main.schema import utils
 
 from main import models
@@ -131,17 +131,17 @@ class UpdateWishlist(MutationPayload, graphene.Mutation):
 
 class CreateOffer(MutationPayload, graphene.Mutation):
     class Arguments:
-        id = graphene.Int(required=True)
+        product_id = graphene.Int(required=True)
         input = ProductOfferInput()
 
     offer = graphene.Field(ProductOffer)
 
     @login_required
     @user_passes_test(lambda user: user.profile.permission_level >= models.Profile.BUYER)
-    def mutate(root, info, id, input=None):
+    def mutate(root, info, product_id, input=None):
         errors = []
         try:
-            product = models.Product.objects.get(id=id)
+            product = models.Product.objects.get(id=product_id)
         except ObjectDoesNotExist:
             errors.append(f"Product to offer on, not found")
             return CreateOffer(errors=errors, offer=None)
@@ -161,14 +161,14 @@ class CreateOffer(MutationPayload, graphene.Mutation):
             return CreateOffer(errors=errors, offer=None)
 
         if (not product.is_negotiable):
-            message = {**input.__dict__}['message'] 
+            message = input['message'] 
             offer = utils.create_offer(profile, product, amount = product.expected_price, message = message)
             viewlog.debug(f"New Offer: {offer.to_dict()}")
 
             return CreateOffer(errors=errors, offer=offer)
         
         try:
-            assert {**input.__dict__}['amount'] != None
+            assert input['amount'] != None
         except:
             errors.append(f"Missing argument 'amount'")
             return CreateOffer(errors=errors, offer=None)
@@ -178,6 +178,21 @@ class CreateOffer(MutationPayload, graphene.Mutation):
 
         return CreateOffer(errors=errors, offer=offer)
 
+class CreateUserReport(MutationPayload, graphene.Mutation):
+    class Arguments:
+        input = UserReportInput()
+
+    user_report = graphene.Field(UserReport)
+
+    @login_required
+    def mutate(root, info, input=None):
+        errors = []
+
+        reported_by = info.context.user.profile
+        user_report = utils.create_user_report(reported_by, **input.__dict__)
+        viewlog.debug(f"{user_report.reported_user} reported by {user_report.reported_by} for {user_report.category}")
+
+        return CreateUserReport(errors=errors,user_report=user_report)
 
 # class UpdateOffer(MutationPayload, graphene.Mutation):
 #     class Arguments:
@@ -210,5 +225,6 @@ class Mutation:
     update_profile = UpdateProfile.Field()
     update_wishlist = UpdateWishlist.Field()
     create_offer = CreateOffer.Field()
+    create_user_report = CreateUserReport.Field()
     # update_offer = UpdateOffer.Field()
 

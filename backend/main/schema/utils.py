@@ -81,6 +81,20 @@ def create_offer(profile, product, **kwargs):
 
     return offer
 
+def create_user_report(reported_by, **kwargs):
+    """
+        Given the attributes of a Profile(reported_user) and a Profile(reported_user) instance, create a new UserReport and save it to the database. Utility for the CreateUserReport mutation. 
+    """
+    r = models.UserReport()
+    r.reported_by = reported_by
+    r.reported_user = models.Profile.objects.get(user__id=kwargs.get('reported_user'))
+    r.category = kwargs.get('category')
+
+    r.save()
+
+    return r
+
+
 # def update_offer(offer, **kwargs):
 
 #     fields = ['amount', 'message']

@@ -17,4 +17,7 @@ class ProductOfferInput(graphene.InputObjectType):
     id = graphene.ID()
     amount = graphene.Int()
     message = graphene.String()
-    
+
+class UserReportInput(graphene.InputObjectType):
+    reported_user = graphene.ID()
+    category = graphene.Int()
