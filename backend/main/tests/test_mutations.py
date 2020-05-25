@@ -14,7 +14,7 @@ def execute_mutation_with_user(query, user=None, variables=None, **kwargs):
     context = req.post(GRAPHQL_URL)
     context.user = user
     client = Client(GRAPHQL_SCHEMA)
-    result = client.execute(query, variables, context_value=context, **kwargs)
+    result = client.execute(query, variable_values=variables, context_value=context, **kwargs)
 
     return result
 
@@ -57,4 +57,62 @@ class TestProductMutations(TestCase):
     #     user = create_user_from_email('jaintirth24@gmail.com')
     #     result = execute_mutation_with_user(self.query_string, user=user)
 
+class TestUserReportMutations(TestCase):
+    query_string = '''
+        mutation ($reportedUserName : String!){
+            createUserReport(input: {
+                reportedUser : $reportedUserName,
+                category: 2
+            }) 
+                {
+                    ok: ok
+                }
+        }
+        ''' 
 
+    def test_bitsian_can_report_bitsian(self):
+        user1 = create_user_from_email('f20190663@pilani.bits-pilani.ac.in')
+        user2 = create_user_from_email('f20190120@pilani.bits-pilani.ac.in')
+
+        result = execute_mutation_with_user(self.query_string, user=user1, variables={"reportedUserName":user2.username})
+
+        self.assertNotIn('errors', result)
+
+        data = result['data']['createUserReport']
+
+        self.assertEqual(data['ok'], True)
+
+    def test_bitsian_can_report_non_bitsian(self):
+        user1 = create_user_from_email('f20190663@pilani.bits-pilani.ac.in')
+        user2 = create_user_from_email('darshmishra3010@gmail.com')
+
+        result = execute_mutation_with_user(self.query_string, user=user1, variables={"reportedUserName":user2.username})
+
+        self.assertNotIn('errors', result)
+        data = result['data']['createUserReport']
+
+        self.assertEqual(data['ok'], True)
+    
+    def test_non_bitsian_can_report_bitsian(self):
+        user1 = create_user_from_email('darshmishra3010@gmail.com')
+        user2 = create_user_from_email('f20190120@pilani.bits-pilani.ac.in')
+
+        result = execute_mutation_with_user(self.query_string, user=user1, variables={"reportedUserName":user2.username})
+
+        self.assertNotIn('errors', result)
+
+        data = result['data']['createUserReport']
+
+        self.assertEqual(data['ok'], True)
+
+    def test_non_bitsian_can_report_non_bitsian(self):
+        user1 = create_user_from_email('jaintirth24@gmail.com')
+        user2 = create_user_from_email('darshmishra3010@gmail.com')
+
+        result = execute_mutation_with_user(self.query_string, user=user1, variables={"reportedUserName":user2.username})
+
+        self.assertNotIn('errors', result)
+
+        data = result['data']['createUserReport']
+
+        self.assertEqual(data['ok'], True)        
