@@ -3,6 +3,7 @@ from graphene.test import Client
 
 from marketplace.schema import schema
 from main.auth_helpers import create_user_from_email, get_jwt_with_user
+from main.models import UserReport
 
 import json
 
@@ -115,4 +116,20 @@ class TestUserReportMutations(TestCase):
 
         data = result['data']['createUserReport']
 
-        self.assertEqual(data['ok'], True)        
+        self.assertEqual(data['ok'], True)
+
+    def test_number_report_increase(self):
+        user1 = create_user_from_email('jaintirth24@gmail.com')
+        user2 = create_user_from_email('darshmishra3010@gmail.com')
+
+        reports = UserReport.objects.count()
+
+        result = execute_mutation_with_user(self.query_string, user=user1, variables={"reportedUserName":user2.username})
+
+        new_reports = UserReport.objects.count()
+
+        self.assertNotIn('errors', result)
+        self.assertEqual(reports+1,new_reports)
+        data = result['data']['createUserReport']
+
+        self.assertEqual(data['ok'], True)
