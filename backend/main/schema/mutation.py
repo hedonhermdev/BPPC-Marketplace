@@ -189,10 +189,10 @@ class CreateUserReport(MutationPayload, graphene.Mutation):
         errors = []
 
         reported_by = info.context.user.profile
-        report = utils.create_user_report(reported_by, **input.__dict__)
-        viewlog.debug(f"{report.reported_user} reported by {report.reported_by} for {report.category}")
+        user_report = utils.create_user_report(reported_by, **input.__dict__)
+        viewlog.debug(f"{user_report.reported_user} reported by {user_report.reported_by} for {user_report.category}")
 
-        return CreateUserReport(errors=errors,report=report)
+        return CreateUserReport(errors=errors,user_report=user_report)
 
 # class UpdateOffer(MutationPayload, graphene.Mutation):
 #     class Arguments:
@@ -225,6 +225,6 @@ class Mutation:
     update_profile = UpdateProfile.Field()
     update_wishlist = UpdateWishlist.Field()
     create_offer = CreateOffer.Field()
-    create_userreport = CreateUserReport.Field()
+    create_user_report = CreateUserReport.Field()
     # update_offer = UpdateOffer.Field()
 

@@ -86,7 +86,7 @@ def create_user_report(reported_by, **kwargs):
     """
     r = models.UserReport()
     r.reported_by = reported_by
-    r.reported_user = kwargs.get('reported_user')
+    r.reported_user = models.Profile.objects.get(user__id=kwargs.get('reported_user'))
     r.category = kwargs.get('category')
 
     r.save()
