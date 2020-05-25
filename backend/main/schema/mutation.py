@@ -131,17 +131,17 @@ class UpdateWishlist(MutationPayload, graphene.Mutation):
 
 class CreateOffer(MutationPayload, graphene.Mutation):
     class Arguments:
-        id = graphene.Int(required=True)
+        product_id = graphene.Int(required=True)
         input = ProductOfferInput()
 
     offer = graphene.Field(ProductOffer)
 
     @login_required
     @user_passes_test(lambda user: user.profile.permission_level >= models.Profile.BUYER)
-    def mutate(root, info, id, input=None):
+    def mutate(root, info, product_id, input=None):
         errors = []
         try:
-            product = models.Product.objects.get(id=id)
+            product = models.Product.objects.get(id=product_id)
         except ObjectDoesNotExist:
             errors.append(f"Product to offer on, not found")
             return CreateOffer(errors=errors, offer=None)
@@ -161,14 +161,14 @@ class CreateOffer(MutationPayload, graphene.Mutation):
             return CreateOffer(errors=errors, offer=None)
 
         if (not product.is_negotiable):
-            message = {**input.__dict__}['message'] 
+            message = input['message'] 
             offer = utils.create_offer(profile, product, amount = product.expected_price, message = message)
             viewlog.debug(f"New Offer: {offer.to_dict()}")
 
             return CreateOffer(errors=errors, offer=offer)
         
         try:
-            assert {**input.__dict__}['amount'] != None
+            assert input['amount'] != None
         except:
             errors.append(f"Missing argument 'amount'")
             return CreateOffer(errors=errors, offer=None)
