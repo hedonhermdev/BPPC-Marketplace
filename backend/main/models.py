@@ -215,7 +215,7 @@ class Product(models.Model):
             "description": self.description,
             "sold": self.sold,
             "is_ticket": self.is_ticket,
-            "created": self.created,
+            "created_at": self.created_at,
         }
 
     def __str__(self):
@@ -309,8 +309,8 @@ def moderate_profile(sender, instance, **kwargs):
     """
     # TODO: Implement mechanism to notify moderators.
     MAX_ALLOWED_REPORTS = 5
-    profile = instance.profile
+    profile = instance.reported_user
     if profile.reports.count() > MAX_ALLOWED_REPORTS:
         profile.permission_level = Profile.BANNED
-        product.save()
+        profile.save()
 

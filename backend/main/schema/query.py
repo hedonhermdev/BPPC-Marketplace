@@ -8,7 +8,8 @@ from main.schema.types import (
     Profile,
     Product,
     ProductOffer,
-    ProductPaginated
+    ProductPaginated,
+    UserReport
 )
 
 from graphql_jwt.decorators import login_required
@@ -108,3 +109,4 @@ class Query:
     def resolve_my_profile(self, info, **kwargs):
         profile = info.context.user.profile
         return profile
+
