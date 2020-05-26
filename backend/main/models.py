@@ -65,25 +65,6 @@ class Profile(models.Model):
     def hostel_name(self):
         return getattr(dict(HOSTEL_CHOICES), self.hostel, "")
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "user": self.user.username,
-            "name": self.name,
-            "hostel": self.hostel,
-            "contact_no": self.contact_no,
-            "rating": self.rating,
-            "num_rating": self.num_ratings,
-            "email": self.email,
-        }
-
-    def to_compact_dict(self):
-        return {
-            "pk": self.pk,
-            "user": self.user.pk,
-            "name": self.name, 
-        }
-
     def __str__(self):
         return f"Profile({self.user.username})"
 
@@ -144,14 +125,6 @@ class ProfileRating(models.Model):
     )
     rating = models.IntegerField()
 
-    def to_dict(self):
-        return {
-            "pk": self.pk,
-            "rated_by": self.rated_by.name,
-            "rating_for": self.rating_for.name,
-            "rating": self.rating,
-        }
-
 
 @receiver(post_save, sender=ProfileRating)
 def update_profile_rating(sender, instance, created, **kwargs):
@@ -198,7 +171,7 @@ class Product(models.Model):
     category = models.ForeignKey('Category', related_name="products", on_delete=models.SET_NULL, null=True)
     sold = models.BooleanField(default=False)
     is_ticket = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
     visible = models.BooleanField(default=True)
     is_negotiable = models.BooleanField(default=False)
     num_offers = models.IntegerField(default=0)
@@ -215,7 +188,7 @@ class Product(models.Model):
             "description": self.description,
             "sold": self.sold,
             "is_ticket": self.is_ticket,
-            "created_at": self.created_at,
+            "created": self.created,
         }
 
     def __str__(self):
@@ -249,15 +222,15 @@ class ProductOffer(models.Model):
         """
         assert self.amount > product.expected_price
 
-    def __str__(self):
-        return f"ProductOffer({self.product.name}, {self.offerer.name}, {self.amount})"
-
     def to_dict(self):
         return {
             "offerer": self.offerer.name,
             "product": self.product.name,
             "amount": self.amount,
         }
+
+    def __str__(self):
+        return f"ProductOffer({self.product.name}, {self.offerer.name}, {self.amount})"
 
 @receiver(post_save, sender=ProductOffer)
 def update_product_offers(sender, instance, created, **kwargs):

@@ -178,7 +178,6 @@ class CreateOffer(MutationPayload, graphene.Mutation):
 
         return CreateOffer(errors=errors, offer=offer)
 
-
 class CreateUserReport(MutationPayload, graphene.Mutation):
     class Arguments:
         input = UserReportInput()
