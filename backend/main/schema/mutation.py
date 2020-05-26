@@ -152,8 +152,8 @@ class CreateOffer(MutationPayload, graphene.Mutation):
             return CreateOffer(errors=errors, offer=None)
 
         try:
-            previous_offer = list(models.ProductOffer.objects.filter(offerer=profile, product=product))[-1]
-        except:
+            previous_offer = product.offers.get(offerer=profile)
+        except ObjectDoesNotExist:
             previous_offer = None
         
         if (previous_offer):

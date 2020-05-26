@@ -1,7 +1,7 @@
 import random
 from django.contrib.auth.decorators import user_passes_test
 from rest_framework_jwt.settings import api_settings
-from main.models import User
+from main.models import User, Product
 
 
 def generate_random_password():
@@ -25,6 +25,18 @@ def create_user_from_email(email):
     user = User(username=username, email=email)
     user.save()
     password = generate_random_password()
+    user.set_password(password)
     user.profile.email = email
     user.profile.save()
     return user
+
+def create_product_from_email(email, is_negotiable):
+    user = create_user_from_email(email)
+    product = Product(seller=user.profile)
+    product.name = "kurkure"
+    product.expected_price = 20
+    product.is_negotiable = is_negotiable
+    product.description = "dedha hai par mera hai"
+
+    product.save()
+    return product, user
