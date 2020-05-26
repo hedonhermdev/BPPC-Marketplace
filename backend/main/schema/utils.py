@@ -81,6 +81,18 @@ def create_offer(profile, product, **kwargs):
 
     return offer
 
+def profile_rating(rating_for, rated_by, rating):
+    """
+    Given the attributes of rating_for(Profile) and rated_by(Profile) instance, create a new profile_rating and save it to the database. Utility for ProfileRating Mutation.
+    """
+    rate_profile = models.ProfileRating()
+    rate_profile.rating_for = rating_for
+    rate_profile.rated_by = rated_by
+    rate_profile.rating = rating
+    rate_profile.save()
+
+    return rate_profile
+
 def create_user_report(reported_by, **kwargs):
     """
         Given the attributes of a Profile(reported_user) and a Profile(reported_user) instance, create a new UserReport and save it to the database. Utility for the CreateUserReport mutation. 
@@ -92,7 +104,6 @@ def create_user_report(reported_by, **kwargs):
     report.category = kwargs.get('category')
 
     report.save()
-    print("here")
 
     return report
 
@@ -109,15 +120,3 @@ def create_user_report(reported_by, **kwargs):
 #     offer.save()
 
 #     return offer
-
-def profile_rating(rating_for, rated_by, rating):
-    """
-    Given the attributes of rating_for(Profile) and rated_by(Profile) instance, create a new profile_rating and save it to the database. Utility for ProfileRating Mutation.
-    """
-    rate_profile = models.ProfileRating()
-    rate_profile.rating_for = rating_for
-    rate_profile.rated_by = rated_by
-    rate_profile.rating = rating
-    rate_profile.save()
-
-    return rate_profile
