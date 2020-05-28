@@ -287,3 +287,81 @@ class TestProfileQuery(TestCase):
         error = result["errors"][0]
 
         self.assertEqual(error["message"], "You do not have permission to perform this action")
+
+class TestResolveCategoryQuery(TestCase):
+
+    query_string = '''query($name: String!){
+                        category (name: $name){
+                            name
+                            products{
+                                name
+                            }
+                        }
+                    }'''
+
+    def setUp(self):
+        self.users = baker.make(User, _quantity=1)
+        self.categories = baker.make(Category, _quantity=1)
+        self.products = baker.make(Product, _quantity=1)
+
+        
+        product = baker.make(Product, seller = self.users[0].profile, category = self.categories[0])
+
+    def test_user_can_get_category(self):
+        user = create_user_from_email('anshal@marketplace.com')
+        result = execute_request_with_user(self.query_string, user=user, variables={'name':self.categories[0].name})
+
+        self.assertNotIn('errors', result)  
+
+        data = result['data']['category']
+
+        self.assertEqual(len(data), 2)
+
+    def test_anonymous_cannot_get_category(self):
+        user = AnonymousUser()
+        result = execute_request_with_user(self.query_string, user=user, variables={'name':self.categories[0].name})
+
+        self.assertIn('errors', result)
+
+        error = result["errors"][0]
+
+        self.assertEqual(error["message"], "You do not have permission to perform this action")
+
+class TestResolveProductQuery(TestCase):
+
+    query_string = '''query($id: Int!){
+                        product (id: $id){
+                            name
+                            seller{
+                                name
+                            }
+                        }
+                    }'''
+
+    def setUp(self):
+        self.users = baker.make(User, _quantity=1)
+        self.categories = baker.make(Category, _quantity=1)
+        self.products = baker.make(Product, _quantity=1)
+
+        
+        product = baker.make(Product, seller = self.users[0].profile, category = self.categories[0])
+
+    def test_user_can_get_category(self):
+        user = create_user_from_email('anshal@marketplace.com')
+        result = execute_request_with_user(self.query_string, user=user, variables={'id':self.products[0].id})
+
+        self.assertNotIn('errors', result)  
+
+        data = result['data']['product']
+
+        self.assertEqual(len(data), 2)
+
+    def test_anonymous_cannot_get_category(self):
+        user = AnonymousUser()
+        result = execute_request_with_user(self.query_string, user=user, variables={'id':self.products[0].id})
+
+        self.assertIn('errors', result)
+
+        error = result["errors"][0]
+
+        self.assertEqual(error["message"], "You do not have permission to perform this action")
