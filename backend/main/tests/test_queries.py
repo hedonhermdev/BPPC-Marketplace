@@ -288,7 +288,7 @@ class TestProfileQuery(TestCase):
 
         self.assertEqual(error["message"], "You do not have permission to perform this action")
 
-class TestResolveCategoryQuery(TestCase):
+class TestCategoryQuery(TestCase):
 
     query_string = '''query($name: String!){
                         category (name: $name){
@@ -327,7 +327,7 @@ class TestResolveCategoryQuery(TestCase):
 
         self.assertEqual(error["message"], "You do not have permission to perform this action")
 
-class TestResolveProductQuery(TestCase):
+class TestProductQuery(TestCase):
 
     query_string = '''query($id: Int!){
                         product (id: $id){
@@ -366,7 +366,7 @@ class TestResolveProductQuery(TestCase):
 
         self.assertEqual(error["message"], "You do not have permission to perform this action")
 
-class TestResolveWishlistQuery(TestCase):
+class TestWishlistQuery(TestCase):
 
     query_string = '''query{
                         wishlist{
@@ -397,6 +397,50 @@ class TestResolveWishlistQuery(TestCase):
     def test_anonymous_cannot_get_wishlist(self):
         user = AnonymousUser()
         result = execute_request_with_user(self.query_string, user=user)
+
+        self.assertIn('errors', result)
+
+        error = result["errors"][0]
+
+        self.assertEqual(error["message"], "You do not have permission to perform this action")
+
+class TestProductOfferQuery(TestCase):
+
+    query_string = '''query($id: Int!) {
+                        productOffer (id: $id) {
+                            offerer {
+                                name
+                            }
+                            product {
+                                name
+                            }
+                            amount
+                            message
+                        }
+                    }'''
+
+    def setUp(self):
+        self.users = baker.make(User, _quantity=2)
+        self.categories = baker.make(Category, _quantity=1)
+
+        self.product = baker.make(Product, seller = self.users[0].profile, category = self.categories[0])
+
+        self.offer = baker.make(ProductOffer, offerer=self.users[1].profile, product=self.product, amount=randint(0,10000), message='yeh mera last test hai')
+
+
+    def test_user_can_get_product_offer(self):
+        user = create_user_from_email('anshalshukla@marketplace.com')
+        result = execute_request_with_user(self.query_string, user=user, variables={'id':self.product.id})
+
+        self.assertNotIn('errors', result)  
+
+        data = result['data']['productOffer'][0]
+
+        self.assertEqual(len(data), 4)
+
+    def test_anonymous_cannot_get_product_offer(self):
+        user = AnonymousUser()
+        result = execute_request_with_user(self.query_string, user=user, variables={'id':self.product.id})
 
         self.assertIn('errors', result)
 
