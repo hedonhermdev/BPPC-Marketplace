@@ -16,7 +16,6 @@ from graphql_jwt.decorators import login_required
 
 class Query:
     all_categories = graphene.List(Category)
-    all_products = graphene.List(Product)
     all_profiles = graphene.List(Profile)
     category = graphene.Field(Category, name=graphene.String())
     product = graphene.Field(Product, id=graphene.Int())
@@ -29,10 +28,6 @@ class Query:
     @login_required
     def resolve_all_categories(self, info, **kwargs):
         return models.Category.objects.all()
-
-    @login_required
-    def resolve_all_products(self, info, **kwargs):
-        return models.Product.objects.all()
 
     @login_required
     def resolve_all_profiles(self, info, **kwargs):
