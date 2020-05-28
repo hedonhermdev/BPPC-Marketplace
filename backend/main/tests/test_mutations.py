@@ -1,12 +1,14 @@
+import json
+
 from django.test import RequestFactory, TestCase
 from graphene.test import Client
 
-from marketplace.schema import schema
-from main.tests.utils import execute_request_with_user
-from main.auth_helpers import create_user_from_email, get_jwt_with_user, create_product_from_email
+from main.auth_helpers import (create_product_from_email,
+                               create_user_from_email, get_jwt_with_user)
 from main.models import UserReport
+from main.tests.utils import execute_request_with_user
+from marketplace.schema import schema
 
-import json
 
 class TestProductMutations(TestCase):
     query_string = '''
@@ -21,7 +23,7 @@ class TestProductMutations(TestCase):
                     ok: ok
                 }
         }
-        '''
+    '''
 
     def test_bitsian_can_create_product(self):
         user = create_user_from_email('f20190120@pilani.bits-pilani.ac.in')
@@ -52,12 +54,12 @@ class TestUserReportMutations(TestCase):
             createUserReport(input: {
                 reportedUser : $reportedUserName,
                 category: 2
-            }) 
+            })
                 {
                     ok: ok
                 }
         }
-        ''' 
+    '''
 
     def test_bitsian_can_report_bitsian(self):
         user1 = create_user_from_email('f20190663@pilani.bits-pilani.ac.in')
@@ -81,7 +83,7 @@ class TestUserReportMutations(TestCase):
         data = result['data']['createUserReport']
 
         self.assertEqual(data['ok'], True)
-    
+
     def test_non_bitsian_can_report_bitsian(self):
         user1 = create_user_from_email('darshmishra3010@gmail.com')
         user2 = create_user_from_email('f20190120@pilani.bits-pilani.ac.in')
@@ -129,7 +131,7 @@ class TestOfferMutations(TestCase):
         if (with_amount):
             query_string = '''mutation{
                                 createOffer(productId: %d
-  						                input:{
+                                                                input:{
                                         amount:20000
                                         message: "mai sab kharidega"
                                         })
@@ -141,7 +143,7 @@ class TestOfferMutations(TestCase):
         else:
             query_string = '''mutation{
                                 createOffer(productId: %d
-  						                input:{
+                                                                input:{
                                         message: "mai sab kharidega"
                                         })
                                     {
@@ -180,7 +182,7 @@ class TestOfferMutations(TestCase):
 
         data = result['data']['createOffer']
         self.assertEqual(data['ok'], False)
-        
+
         errors = data['errors']
         self.assertEqual(errors[0], "User cannot offer on their own product") #Matching the error message returned from mutation.
 

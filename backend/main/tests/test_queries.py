@@ -1,13 +1,13 @@
-from django.test import TestCase
-from django.contrib.auth.models import AnonymousUser
+from random import randint
 
-from main.tests.utils import execute_request_with_user
+from django.contrib.auth.models import AnonymousUser
+from django.test import TestCase
+
 from main.auth_helpers import create_user_from_email
 from main.models import *
-
+from main.tests.utils import execute_request_with_user
 from model_bakery import baker
 
-from random import randint
 
 class TestAllProductsQuery(TestCase):
 

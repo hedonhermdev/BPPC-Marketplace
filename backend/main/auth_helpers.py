@@ -1,7 +1,9 @@
 import random
+
 from django.contrib.auth.decorators import user_passes_test
 from rest_framework_jwt.settings import api_settings
-from main.models import User, Product
+
+from main.models import Product, User
 
 
 def generate_random_password():

@@ -1,8 +1,10 @@
 from django.urls import path
-from .views import content, auth, index
 from django.views.decorators.csrf import csrf_exempt
 from graphene_django.views import GraphQLView
+
 from marketplace.schema import schema
+
+from .views import auth, content, index
 
 urlpatterns = [
     path("", index.index, name="index"),

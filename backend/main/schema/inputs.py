@@ -1,5 +1,6 @@
 import graphene
 
+
 class ProductInput(graphene.InputObjectType):
     id = graphene.ID()
     name = graphene.String()
@@ -21,4 +22,3 @@ class ProductOfferInput(graphene.InputObjectType):
 class UserReportInput(graphene.InputObjectType):
     reported_user = graphene.String()
     category = graphene.Int()
-    

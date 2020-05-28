@@ -1,5 +1,7 @@
-from main import models
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+
+from main import models
+
 
 def get_paginator(qs, page_size, page, paginated_type, **kwargs):
     p = Paginator(qs, page_size)

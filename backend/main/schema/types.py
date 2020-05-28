@@ -1,8 +1,9 @@
 import graphene
 from graphene_django.types import DjangoObjectType, ObjectType
+
 from main import models
 
-        
+
 class ProductOffer(DjangoObjectType):
     class Meta:
         model = models.ProductOffer
@@ -136,4 +137,3 @@ class ProductPaginated(graphene.ObjectType):
     has_next = graphene.Boolean()
     has_prev = graphene.Boolean()
     objects = graphene.List(Product)
-

@@ -1,4 +1,6 @@
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "marketplace.settings")
+
 import django
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "marketplace.settings")
 django.setup()

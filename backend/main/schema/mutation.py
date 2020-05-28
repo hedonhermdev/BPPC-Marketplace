@@ -1,14 +1,15 @@
-import graphene
-from graphql_jwt.decorators import login_required, user_passes_test
-from django.core.exceptions import ObjectDoesNotExist
+import logging
 
-from main.schema.inputs import ProductInput, ProfileUpdateInput, ProductOfferInput, UserReportInput
-from main.schema.types import Product, Profile, Wishlist, ProductOffer, UserReport
-from main.schema import utils
+import graphene
+from django.core.exceptions import ObjectDoesNotExist
+from graphql_jwt.decorators import login_required, user_passes_test
 
 from main import models
-
-import logging
+from main.schema import utils
+from main.schema.inputs import (ProductInput, ProductOfferInput,
+                                ProfileUpdateInput, UserReportInput)
+from main.schema.types import (Product, ProductOffer, Profile, UserReport,
+                               Wishlist)
 
 viewlog = logging.getLogger("viewlog")
 
@@ -227,4 +228,3 @@ class Mutation:
     create_offer = CreateOffer.Field()
     create_user_report = CreateUserReport.Field()
     # update_offer = UpdateOffer.Field()
-

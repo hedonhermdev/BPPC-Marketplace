@@ -1,18 +1,12 @@
 import graphene
 from django.core.exceptions import ObjectDoesNotExist
-from main.schema import utils
+from graphql_jwt.decorators import login_required
 
 from main import models
-from main.schema.types import (
-    Category,
-    Profile,
-    Product,
-    ProductOffer,
-    ProductPaginated,
-    UserReport
-)
+from main.schema import utils
+from main.schema.types import (Category, Product, ProductOffer,
+                               ProductPaginated, Profile, UserReport)
 
-from graphql_jwt.decorators import login_required
 
 class Query:
     all_categories = graphene.List(Category)
@@ -104,4 +98,3 @@ class Query:
     def resolve_my_profile(self, info, **kwargs):
         profile = info.context.user.profile
         return profile
-
