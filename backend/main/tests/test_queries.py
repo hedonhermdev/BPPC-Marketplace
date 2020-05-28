@@ -206,9 +206,81 @@ class TestMyProfileQuery(TestCase):
 
         self.assertEqual(len(data), 4)
     
-    def test_anonymous_cannot_get_products(self):
+    def test_anonymous_cannot_get_my_profile(self):
         user = AnonymousUser()
         result = execute_request_with_user(self.query_string, user = user)
+
+        self.assertIn('errors', result)
+
+        error = result["errors"][0]
+
+        self.assertEqual(error["message"], "You do not have permission to perform this action")
+
+class TestProfileQuery(TestCase):
+
+    query_string = '''query($id:Int, $username:String, $email:String){
+                        profile (id: $id, username: $username, email:$email){
+                            id
+                            name
+                            email
+                        }
+                    }''' 
+
+    def test_user_can_get_profile_by_id(self):
+        user = create_user_from_email('anshal1@marketplace.com')
+        result = execute_request_with_user(self.query_string, user=user, variables={'id':user.id})
+
+        self.assertNotIn('errors', result)
+
+        data = result['data']['profile']
+
+        self.assertEqual(len(data),3)
+
+    def test_user_can_get_profile_by_username(self):
+        user = create_user_from_email('anshal2@marketplace.com')
+        result = execute_request_with_user(self.query_string, user=user, variables={'username':user.username})
+
+        self.assertNotIn('errors', result)
+
+        data = result['data']['profile']
+
+        self.assertEqual(len(data),3)
+    
+    def test_user_can_get_profile_by_email(self):
+        user = create_user_from_email('anshal3@marketplace.com')
+        result = execute_request_with_user(self.query_string, user=user, variables={'email':user.email})
+        self.assertNotIn('errors', result)
+
+        data = result['data']['profile']
+
+        self.assertEqual(len(data),3)
+
+    def test_anonymous_cannot_get_profile_by_id(self):
+        user = AnonymousUser()
+        find_user = create_user_from_email('anshal@marketplace.com')
+        result = execute_request_with_user(self.query_string, user = user, variables={'id':find_user.id})
+
+        self.assertIn('errors', result)
+
+        error = result["errors"][0]
+
+        self.assertEqual(error["message"], "You do not have permission to perform this action")
+
+    def test_anonymous_cannot_get_profile_by_username(self):
+        user = AnonymousUser()
+        find_user = create_user_from_email('anshal@marketplace.com')
+        result = execute_request_with_user(self.query_string, user = user, variables={'username':find_user.username})
+
+        self.assertIn('errors', result)
+
+        error = result["errors"][0]
+
+        self.assertEqual(error["message"], "You do not have permission to perform this action")
+
+    def test_anonymous_cannot_get_profile_by_email(self):
+        user = AnonymousUser()
+        find_user = create_user_from_email('anshal@marketplace.com')
+        result = execute_request_with_user(self.query_string, user = user, variables={'email':find_user.email})
 
         self.assertIn('errors', result)
 
