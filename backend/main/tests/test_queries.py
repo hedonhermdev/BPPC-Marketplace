@@ -55,4 +55,44 @@ class TestAllProductsQueries(TestCase):
         self.assertEqual(error["message"], "You do not have permission to perform this action") # comparing the error message 
         
 
-        
+class TestAllCategoriesQueries(TestCase):
+
+    query_string = '''query {
+                        allCategories {
+                            name 
+                            products {
+                                name
+                                seller {
+                                    name
+                                }
+                            }
+                        }
+                    }'''
+
+    def setUp(self):
+        self.users = baker.make(User, _quantity=5)
+        self.categories = baker.make(Category, _quantity=5)
+        for i in range(5):
+            product = baker.make(Product, seller = self.users[i].profile, category = self.categories[i])
+
+    def test_user_can_get_all_categories(self):
+        user = create_user_from_email('anshal@marketplace.com')
+        result = execute_request_with_user(self.query_string, user=user)
+
+        self.assertNotIn('errors', result)
+
+        data = result['data']['allCategories']
+        print('/n')
+        print(data)
+        self.assertEqual(len(data), 5)
+        self.assertEqual(len(data[0]['products']), 1)
+
+    def test_anonymous_cannot_get_products(self):
+        user = AnonymousUser()
+        result = execute_request_with_user(self.query_string, user = user)
+
+        self.assertIn('errors', result)
+
+        error = result["errors"][0]
+
+        self.assertEqual(error["message"], "You do not have permission to perform this action")
