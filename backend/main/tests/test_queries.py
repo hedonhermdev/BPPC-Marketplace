@@ -365,3 +365,41 @@ class TestResolveProductQuery(TestCase):
         error = result["errors"][0]
 
         self.assertEqual(error["message"], "You do not have permission to perform this action")
+
+class TestResolveWishlistQuery(TestCase):
+
+    query_string = '''query{
+                        wishlist{
+                            name
+                            seller{
+                                name
+                            }
+                        }
+                    }'''
+
+    def setUp(self):
+        self.users = baker.make(User, _quantity=1)
+        self.categories = baker.make(Category, _quantity=1)
+
+        self.product = baker.make(Product, seller = self.users[0].profile, category = self.categories[0])
+
+    def test_user_can_get_wishlist(self):
+        user = create_user_from_email('anshal5@marketplace.com')
+        user.profile.wishlist.products.add(self.product)
+        result = execute_request_with_user(self.query_string, user=user)
+
+        self.assertNotIn('errors', result)  
+
+        data = result['data']['wishlist'][0]
+
+        self.assertEqual(len(data), 2)
+
+    def test_anonymous_cannot_get_wishlist(self):
+        user = AnonymousUser()
+        result = execute_request_with_user(self.query_string, user=user)
+
+        self.assertIn('errors', result)
+
+        error = result["errors"][0]
+
+        self.assertEqual(error["message"], "You do not have permission to perform this action")
