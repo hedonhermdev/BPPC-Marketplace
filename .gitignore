@@ -8,3 +8,5 @@ myenv/
 .vscode
 venv
 env
+backend/htmlcov
+.coverage

@@ -39,7 +39,7 @@ def authenticate(request):
     try: 
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        user = create_user_from_email
+        user = create_user_from_email(email)
 
     token = get_jwt_with_user(user)
 

@@ -102,7 +102,7 @@ class Query:
     @login_required
     def resolve_products(self, info, page, pagesize):
         page_size = pagesize
-        qs = models.Product.objects.all()
+        qs = models.Product.objects.all().order_by("created_at")
         return utils.get_paginator(qs, page_size, page, ProductPaginated)
 
     @login_required
