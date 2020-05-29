@@ -1,9 +1,9 @@
+import json
+
 from django.test import RequestFactory
 from graphene.test import Client
 
 from marketplace.schema import schema
-
-import json
 
 GRAPHQL_URL = '/api/graphql/'
 GRAPHQL_SCHEMA = schema

@@ -1,3 +1,5 @@
+import logging
+
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as googleIdToken
 from rest_framework import status
@@ -5,11 +7,9 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from main.auth_helpers import create_user_from_email, get_jwt_with_user
-from main.models import User, Profile
+from main.models import Profile, User
 
-import logging
-
-# Set up logger. 
+# Set up logger.
 log = logging.getLogger("main")
 
 
@@ -48,4 +48,3 @@ def authenticate(request):
         {"token": token, "username": user.username, "isComplete": user.profile.is_complete},
         status=status.HTTP_201_CREATED,
     )
-

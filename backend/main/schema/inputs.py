@@ -1,5 +1,6 @@
 import graphene
 
+
 class ProductInput(graphene.InputObjectType):
     id = graphene.ID()
     name = graphene.String()

@@ -4,15 +4,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-
-# It is a port of Google's libphonenuber library, which powers Android's phone number handling
-# Universal Way to store international mobile numbers
-from phonenumber_field .modelfields import PhoneNumberField
-
+from phonenumber_field.modelfields import PhoneNumberField
 from PIL import Image
-
-import uuid
-
 
 CATEGORY_CHOICES = (
     "Stationary",
@@ -40,7 +33,7 @@ class Profile(models.Model):
     SELLER = 2
     ADMIN = 3
     LEVELS = (
-        (BANNED, "Banned"), # Banned users cannot perform any action other than browsing products. 
+        (BANNED, "Banned"), # Banned users cannot perform any action other than browsing products.
         (BUYER, "Buyer"),
         (SELLER, "Seller"),
         (ADMIN, "Admin"),
@@ -55,15 +48,8 @@ class Profile(models.Model):
     rating = models.DecimalField(max_digits=2, decimal_places=1, default=0)
     num_ratings = models.IntegerField(default=0)
     email = models.EmailField()
-
-    # Field to signify if user has filled all required details in profile. 
-    is_complete = models.BooleanField(default=False)
-
+    is_complete = models.BooleanField(default=False) # Field to signify if user has filled all required details in profile.
     permission_level = models.SmallIntegerField(choices=LEVELS, default=2)
-
-    @property
-    def hostel_name(self):
-        return getattr(dict(HOSTEL_CHOICES), self.hostel, "")
 
     def __str__(self):
         return f"Profile({self.user.username})"
@@ -73,7 +59,7 @@ class Profile(models.Model):
 @receiver(post_save, sender=User)
 def create_or_update_profile(sender, instance, created, **kwargs):
     """
-    When a new user is created, create a profile for it. 
+    When a new user is created, create a profile for it.
     When the user is updated, update its profile.
     """
     if created:
@@ -84,17 +70,22 @@ def create_or_update_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Profile)
 def set_permission_level(sender, instance, created, **kwargs):
+    """
+    When a new user is created, set its permission_level according to its email.
+    BITSIAN -> SELLER
+    NON-BITSIAN -> BUYER
+    """
     if instance.email != "" and instance.permission_level is not None:
         domain = instance.email.split('@')[1]
 
-            # Bitsian or Non Bitsian
+        # Bitsian or Non Bitsian
         if domain == "pilani.bits-pilani.ac.in":
             # Bitsians can be sellers
             permission_level = Profile.SELLER
         else:
             # Non-bitsians can be buyers only.
             permission_level = Profile.BUYER
-            instance.permission_level = permission_level  
+            instance.permission_level = permission_level
 
 @receiver(pre_save, sender=Profile)
 def update_is_complete(sender, instance, **kwargs):
@@ -110,7 +101,7 @@ class Avatar(models.Model):
     name = models.CharField(max_length=20)
     image = models.ImageField(upload_to='avatars')
     url = models.CharField(max_length=40, null=True)
-    
+
     def save(self, *args, **kwargs):
         self.url = self.image.url
         super().save(*args, **kwargs)
@@ -138,22 +129,29 @@ def update_profile_rating(sender, instance, created, **kwargs):
         profile.num_ratings += 1
         profile.save()
 
+
 class Category(models.Model):
     name = models.CharField(max_length=20, unique=True)
 
     """
     All the instances of CATEGORY_CHOICES gets automatically created by migrations file 0014_auto_20200427_1006.py .
     """
-    
+
     def __str__(self):
         return f"Category({self.name})"
 
     class Meta:
         verbose_name_plural = "Categories"
 
+
 class ProductManager(models.Manager):
-    def tickets(self):
-        return self.filter(is_ticket=True)
+    """
+    Custom manager for products.
+    objects.all() -> Only visible and non-expired products
+    """
+    def get_queryset(self):
+        return super().get_queryset().filter(expired=False, visible=True)
+
 
 
 class Product(models.Model):
@@ -169,12 +167,16 @@ class Product(models.Model):
     expected_price = models.PositiveIntegerField(blank=False, null=False)
     description = models.CharField(max_length=300)
     category = models.ForeignKey('Category', related_name="products", on_delete=models.SET_NULL, null=True)
-    sold = models.BooleanField(default=False)
     is_ticket = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    visible = models.BooleanField(default=True)
-    is_negotiable = models.BooleanField(default=False)
+
+    is_negotiable = models.BooleanField(default=False) # If product is non-negotiable, all offer prices must be equal to expected_price
+
     num_offers = models.IntegerField(default=0)
+
+    visible = models.BooleanField(default=True) # For banning/unbanning products.
+    expired = models.BooleanField(default=False) # For expiring products after given expiry period.
+    sold = models.BooleanField(default=False) # For marking a product as sold after deal is complete.
 
     objects = ProductManager()
 
@@ -194,13 +196,19 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+
 class Wishlist(models.Model):
+    """
+    Model to save a user's wishlist. 
+    Users can add/delete items from their wishlist.
+    """
     profile = models.OneToOneField(Profile, related_name="wishlist", on_delete=models.CASCADE)
-    products = models.ManyToManyField(Product, symmetrical=False, blank=True)
+    products = models.ManyToManyField(Product, symmetrical=False, limit_choices_to={'expired': False, 'visible': True, 'sold': False})
+
 
 class ImageModel(models.Model):
     """
-        Utility model for product images and profile photos.
+    Utility model for product images and profile photos.
     """
     image = models.ImageField(upload_to="images/")
     thumbnail = models.ImageField(upload_to="thumbs/")
@@ -242,6 +250,7 @@ def update_product_offers(sender, instance, created, **kwargs):
         product.num_offers += 1
         product.save()
 
+
 class ProductQnA(models.Model):
     """
     Potential buyers can ask questions and the seller can answer.
@@ -258,13 +267,17 @@ class ProductQnA(models.Model):
 
     def __str__(self):
         return f"Question({self.question}), Product({self.product.name}), Asked by({self.asked_by.name})"
-    
+
     class Meta:
         verbose_name = "Product QnA"
         verbose_name_plural = "Products QnA"
 
 
 class UserReport(models.Model):
+    """
+    Model for handling reporting of users by other users.
+    Reports can be categorized into three broad categories mentioned below.
+    """
     CATEGORY_CHOICES = (
         (1, "Spam"),
         (2, "Profanity"),
@@ -278,7 +291,7 @@ class UserReport(models.Model):
 @receiver(post_save, sender=UserReport)
 def moderate_profile(sender, instance, **kwargs):
     """
-        Make a product not visible if it has been reported more than 5 times.
+    Ban a user after 5 reports.
     """
     # TODO: Implement mechanism to notify moderators.
     MAX_ALLOWED_REPORTS = 5
@@ -286,4 +299,3 @@ def moderate_profile(sender, instance, **kwargs):
     if profile.reports.count() > MAX_ALLOWED_REPORTS:
         profile.permission_level = Profile.BANNED
         profile.save()
-

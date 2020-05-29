@@ -1,22 +1,15 @@
 import graphene
 from django.core.exceptions import ObjectDoesNotExist
-from main.schema import utils
+from graphql_jwt.decorators import login_required
 
 from main import models
-from main.schema.types import (
-    Category,
-    Profile,
-    Product,
-    ProductOffer,
-    ProductPaginated,
-    UserReport
-)
+from main.schema import utils
+from main.schema.types import (Category, Product, ProductOffer,
+                               ProductPaginated, Profile, UserReport)
 
-from graphql_jwt.decorators import login_required
 
 class Query:
     all_categories = graphene.List(Category)
-    all_products = graphene.List(Product)
     all_profiles = graphene.List(Profile)
     category = graphene.Field(Category, name=graphene.String())
     product = graphene.Field(Product, id=graphene.Int())
@@ -29,10 +22,6 @@ class Query:
     @login_required
     def resolve_all_categories(self, info, **kwargs):
         return models.Category.objects.all()
-
-    @login_required
-    def resolve_all_products(self, info, **kwargs):
-        return models.Product.objects.all()
 
     @login_required
     def resolve_all_profiles(self, info, **kwargs):
@@ -109,4 +98,3 @@ class Query:
     def resolve_my_profile(self, info, **kwargs):
         profile = info.context.user.profile
         return profile
-

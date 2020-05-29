@@ -1,12 +1,14 @@
+import json
+
 from django.test import RequestFactory, TestCase
 from graphene.test import Client
 
-from marketplace.schema import schema
+from main.auth_helpers import (create_product_from_email,
+                               create_user_from_email, get_jwt_with_user)
+from main.models import UserReport
 from main.tests.utils import execute_request_with_user
-from main.auth_helpers import create_user_from_email, get_jwt_with_user, create_product_from_email
-from main.models import UserReport, Product, Profile
+from marketplace.schema import schema
 
-import json
 
 class TestProductMutations(TestCase):
     query_string = '''
@@ -21,7 +23,7 @@ class TestProductMutations(TestCase):
                     ok: ok
                 }
         }
-        '''
+    '''
 
     def test_bitsian_can_create_product(self):
         user = create_user_from_email('f20190120@pilani.bits-pilani.ac.in')
@@ -52,12 +54,12 @@ class TestUserReportMutations(TestCase):
             createUserReport(input: {
                 reportedUser : $reportedUserName,
                 category: 2
-            }) 
+            })
                 {
                     ok: ok
                 }
         }
-        ''' 
+    '''
 
     def test_bitsian_can_report_bitsian(self):
         user1 = create_user_from_email('f20190663@pilani.bits-pilani.ac.in')
@@ -81,7 +83,7 @@ class TestUserReportMutations(TestCase):
         data = result['data']['createUserReport']
 
         self.assertEqual(data['ok'], True)
-    
+
     def test_non_bitsian_can_report_bitsian(self):
         user1 = create_user_from_email('darshmishra3010@gmail.com')
         user2 = create_user_from_email('f20190120@pilani.bits-pilani.ac.in')
@@ -129,7 +131,7 @@ class TestOfferMutations(TestCase):
         if (with_amount):
             query_string = '''mutation{
                                 createOffer(productId: %d
-  						                input:{
+                                                                input:{
                                         amount:20000
                                         message: "mai sab kharidega"
                                         })
@@ -141,7 +143,7 @@ class TestOfferMutations(TestCase):
         else:
             query_string = '''mutation{
                                 createOffer(productId: %d
-  						                input:{
+                                                                input:{
                                         message: "mai sab kharidega"
                                         })
                                     {
@@ -180,7 +182,7 @@ class TestOfferMutations(TestCase):
 
         data = result['data']['createOffer']
         self.assertEqual(data['ok'], False)
-        
+
         errors = data['errors']
         self.assertEqual(errors[0], "User cannot offer on their own product") #Matching the error message returned from mutation.
 
@@ -212,56 +214,3 @@ class TestOfferMutations(TestCase):
 
         errors = data['errors']
         self.assertEqual(errors[0], "Missing argument 'amount'")
-
-class TestUploadImageMutations(TestCase):
-    query_string = '''
-        mutation ($id : ID, $thumbnail: String){
-            uploadImage(input: {
-                product : $id,
-                images : ["C:Users/User/Photos/one.jpg", "C:Users/User/Photos/two.jpg"],
-                thumbnail: $thumbnail
-            }) 
-                {
-                    ok: ok
-                }
-        }
-        '''
-
-    def create_product(self, created_by, is_negotiable=True):
-        p = Product()
-        p.name = "test"
-        p.expected_price = 400
-        p.is_negotiable = is_negotiable
-        p.seller = Profile.objects.get(user=created_by)
-        p.description = "test123"
-        p.save()
-        return p
-
-    def test_image_string_uploads(self):
-        user1 = create_user_from_email('f20190663@pilani.bits-pilani.ac.in')
-        product = self.create_product(created_by=user1)
-
-        result = execute_request_with_user(self.query_string, user=user1, variables={"id":product.id, "thumbnail":"C:Users/User/Photos/two.jpg"})
-
-        self.assertNotIn('errors', result)
-
-        data = result['data']['uploadImage']
-
-        self.assertEqual(data['ok'], True)
-
-    def test_user_not_seller_not_upload_images(self):
-        user1 = create_user_from_email('f20190663@pilani.bits-pilani.ac.in')
-        user2 = create_user_from_email('f20190120@pilani.bits-pilani.ac.in')
-
-        product = self.create_product(created_by=user1)
-
-        result = execute_request_with_user(self.query_string, user=user2, variables={"id":product.id, "thumbnail":"C:Users/User/Photos/two.jpg"})
-
-        self.assertNotIn('errors', result)
-
-        data = result['data']['uploadImage']
-
-        self.assertEqual(data['ok'], False)
-
-    def test_upload_image
-    

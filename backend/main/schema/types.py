@@ -1,5 +1,6 @@
 import graphene
 from graphene_django.types import DjangoObjectType, ObjectType
+
 from main import models
 
 class ImageModel(DjangoObjectType):
@@ -140,4 +141,3 @@ class ProductPaginated(graphene.ObjectType):
     has_next = graphene.Boolean()
     has_prev = graphene.Boolean()
     objects = graphene.List(Product)
-

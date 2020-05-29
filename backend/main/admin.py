@@ -1,16 +1,8 @@
 from django.contrib import admin
-from main.models import (
-    Profile,
-    Avatar,
-    Product,
-    ImageModel,
-    ProductOffer,
-    ProductQnA,
-    ProfileRating,
-    UserReport,
-    Category,
-    Wishlist
-)
+
+from main.models import (Avatar, Category, ImageModel, Product, ProductOffer,
+                         ProductQnA, Profile, ProfileRating, UserReport,
+                         Wishlist)
 
 admin.site.register(Avatar)
 admin.site.register(Profile)
