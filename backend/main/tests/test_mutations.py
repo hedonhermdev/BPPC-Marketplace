@@ -4,7 +4,7 @@ from graphene.test import Client
 from marketplace.schema import schema
 from main.tests.utils import execute_request_with_user
 from main.auth_helpers import create_user_from_email, get_jwt_with_user, create_product_from_email
-from main.models import UserReport
+from main.models import UserReport, Product, Profile
 
 import json
 
@@ -212,3 +212,56 @@ class TestOfferMutations(TestCase):
 
         errors = data['errors']
         self.assertEqual(errors[0], "Missing argument 'amount'")
+
+class TestUploadImageMutations(TestCase):
+    query_string = '''
+        mutation ($id : ID, $thumbnail: String){
+            uploadImage(input: {
+                product : $id,
+                images : ["C:Users/User/Photos/one.jpg", "C:Users/User/Photos/two.jpg"],
+                thumbnail: $thumbnail
+            }) 
+                {
+                    ok: ok
+                }
+        }
+        '''
+
+    def create_product(self, created_by, is_negotiable=True):
+        p = Product()
+        p.name = "test"
+        p.expected_price = 400
+        p.is_negotiable = is_negotiable
+        p.seller = Profile.objects.get(user=created_by)
+        p.description = "test123"
+        p.save()
+        return p
+
+    def test_image_string_uploads(self):
+        user1 = create_user_from_email('f20190663@pilani.bits-pilani.ac.in')
+        product = self.create_product(created_by=user1)
+
+        result = execute_request_with_user(self.query_string, user=user1, variables={"id":product.id, "thumbnail":"C:Users/User/Photos/two.jpg"})
+
+        self.assertNotIn('errors', result)
+
+        data = result['data']['uploadImage']
+
+        self.assertEqual(data['ok'], True)
+
+    def test_user_not_seller_not_upload_images(self):
+        user1 = create_user_from_email('f20190663@pilani.bits-pilani.ac.in')
+        user2 = create_user_from_email('f20190120@pilani.bits-pilani.ac.in')
+
+        product = self.create_product(created_by=user1)
+
+        result = execute_request_with_user(self.query_string, user=user2, variables={"id":product.id, "thumbnail":"C:Users/User/Photos/two.jpg"})
+
+        self.assertNotIn('errors', result)
+
+        data = result['data']['uploadImage']
+
+        self.assertEqual(data['ok'], False)
+
+    def test_upload_image
+    
