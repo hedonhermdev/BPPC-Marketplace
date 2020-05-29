@@ -2,7 +2,11 @@ import graphene
 from graphene_django.types import DjangoObjectType, ObjectType
 from main import models
 
-        
+class ImageModel(DjangoObjectType):
+    class Meta:
+        model =  models.ImageModel       
+        fields = ['image', 'thumbnail']
+
 class ProductOffer(DjangoObjectType):
     class Meta:
         model = models.ProductOffer
@@ -42,7 +46,7 @@ class Product(DjangoObjectType):
             'is_negotiable': ['exact']
         }
 
-    images = graphene.List(graphene.String)
+    images = graphene.List(ImageModel)
     offers = graphene.List(ProductOffer)
     questions = graphene.List(ProductQnA)
     

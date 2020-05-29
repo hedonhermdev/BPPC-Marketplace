@@ -107,6 +107,19 @@ def create_user_report(reported_by, **kwargs):
 
     return report
 
+def upload_images(images, **kwargs):
+    """
+    Upload Images for a given Product ID
+    """
+    product = models.Product.objects.get(id=kwargs.get('product'))
+    for i in images:
+        imag = models.ImageModel()
+        imag.image = i
+        imag.save()
+        product.images.add(imag)
+        product.save()
+
+    return product
 
 # def update_offer(offer, **kwargs):
 

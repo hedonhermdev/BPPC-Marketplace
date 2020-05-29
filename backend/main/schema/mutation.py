@@ -2,8 +2,8 @@ import graphene
 from graphql_jwt.decorators import login_required, user_passes_test
 from django.core.exceptions import ObjectDoesNotExist
 
-from main.schema.inputs import ProductInput, ProfileUpdateInput, ProductOfferInput, UserReportInput
-from main.schema.types import Product, Profile, Wishlist, ProductOffer, UserReport
+from main.schema.inputs import ProductInput, ProfileUpdateInput, ProductOfferInput, UserReportInput, ImageInput
+from main.schema.types import Product, Profile, Wishlist, ProductOffer, UserReport, ImageModel
 from main.schema import utils
 
 from main import models
@@ -41,6 +41,7 @@ class CreateProduct(MutationPayload, graphene.Mutation):
 
         seller = info.context.user.profile
         product = utils.create_product(seller, **input.__dict__)
+        #product.images = info.context.FILES
         viewlog.debug(f"Product created with details : {product.to_dict()}")
 
         return CreateProduct(errors=errors,product=product)
@@ -194,6 +195,34 @@ class CreateUserReport(MutationPayload, graphene.Mutation):
 
         return CreateUserReport(errors=errors, user_report=user_report)
 
+class UploadImage(MutationPayload, graphene.Mutation):
+    class Arguments:
+        input = ImageInput()
+    
+    images = graphene.Field(ImageModel)
+
+    @login_required
+    def mutate(root, info, input=None):
+        errors = []
+
+        uploaded_by = info.context.user.profile
+        images = info.context.FILES
+
+        try:
+            prod = models.Product.objects.get(id = input['product'])
+        except:
+            errors.append("You missed the Product ID or Product Does Not Exist")
+            return UploadImage(errors = errors, images = None)
+       
+        if uploaded_by != models.Product.objects.get(id=input['product']).seller:
+            errors.append("Only Seller is allowed to upload Images")
+            return UploadImage(errors = errors, images = None)
+        
+        product = utils.upload_images(images, **input.__dict__)
+        viewlog.debug(f"Images uploaded for Product {product.name}")
+
+        return UploadImage(errors = errors, images = product.images)
+
 # class UpdateOffer(MutationPayload, graphene.Mutation):
 #     class Arguments:
 #         id = graphene.Int(required=True)
@@ -226,5 +255,6 @@ class Mutation:
     update_wishlist = UpdateWishlist.Field()
     create_offer = CreateOffer.Field()
     create_user_report = CreateUserReport.Field()
+    upload_image = UploadImage.Field()
     # update_offer = UpdateOffer.Field()
 
