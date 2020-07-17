@@ -7,9 +7,10 @@ from graphql_jwt.decorators import login_required, user_passes_test
 from main import models
 from main.schema import utils
 from main.schema.inputs import (ProductInput, ProductOfferInput,
-                                ProfileUpdateInput, UserReportInput)
+                                ProfileUpdateInput, UserReportInput,
+                                ImageInput)
 from main.schema.types import (Product, ProductOffer, Profile, UserReport,
-                               Wishlist)
+                               Wishlist, ImageModel)
 
 viewlog = logging.getLogger("viewlog")
 
@@ -207,7 +208,8 @@ class UploadImage(MutationPayload, graphene.Mutation):
         errors = []
 
         uploaded_by = info.context.user.profile
-        images = info.context.FILES
+        images = info.context.FILES.items
+        print(images)
 
         try:
             prod = models.Product.objects.get(id = input['product'])
@@ -218,6 +220,7 @@ class UploadImage(MutationPayload, graphene.Mutation):
         if uploaded_by != models.Product.objects.get(id=input['product']).seller:
             errors.append("Only Seller is allowed to upload Images")
             return UploadImage(errors = errors, images = None)
+    
         
         product = utils.upload_images(images, **input.__dict__)
         viewlog.debug(f"Images uploaded for Product {product.name}")
