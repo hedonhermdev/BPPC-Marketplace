@@ -15,9 +15,9 @@ It started as a small learning project between me and a couple of friends with a
 - Docker containers working in harmony
 - A comprehensive test-suite
 
-It is hosted at: https://market.bits-dvm.org/
+It is hosted at: https://market.hedonhermdev.tech
 
-To test the GraphQL API and learn more about the schema, go to: https://market.bits-dvm.org/api/graphql 
+To test the GraphQL API and learn more about the schema, go to: https://market.hedonhermdev.tech/api/graphql 
 
 
 ## Roadmap
