@@ -1,10 +1,5 @@
 **/__pycache__/
 *.log
-db.sqlite3
-marketplace/keyconfig.py
 .vim
-static/
-media/
-myenv/
-.vscode
-venv
+venv/
+backend/**/migrations/
