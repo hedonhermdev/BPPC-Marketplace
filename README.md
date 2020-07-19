@@ -15,6 +15,7 @@ It started as a small learning project between me and a couple of friends with a
 - Docker containers working in harmony
 - A comprehensive test-suite
 
+(If any of the above features are broken, don't work or you would like to add a feature, please open an issue.)
 It is hosted at: https://market.hedonhermdev.tech
 
 To test the GraphQL API and learn more about the schema, go to: https://market.hedonhermdev.tech/api/graphql 
@@ -23,17 +24,35 @@ To test the GraphQL API and learn more about the schema, go to: https://market.h
 ## Roadmap
 Currently, we have the following features/improvements in mind: 
 
+- Close open (issues)[https://github.com/hedonhermdev/BPPC-Marketplace/issues] 
 - A cache on the server side to further improve performance. 
 - Email and push notifications (it is planned to do this using a separate service to keep the business logic clean)
 - More comprehensive testing
 - Code cleanup
 
-## The Team
 
-Everything in this repo has been written by the following people:
+## Contributing 
+To contribute to the project, take a look at the (open issues)[https://github.com/hedonhermdev/BPPC-Marketplace/issues]. Pick any open issue (or open a new one!) and announce in a comment that you would like to work on an issue. Once assigned, you can start working on it. The documentation is sparse (read: non-existent) so if you have any doubts, come talk to us on the BITS ACM Slack. You'll find us on #backend. 
 
-- Tirth Jain (@hedonhermdev)
-- Sarthak Choudhary (@sarthak-choudhary)
-- Anshal Shukla (@anshalshukla)
-- Uday Singla (@uday-singla)
-- Darsh Mishra (@darmisblip)
+### Setting Up A Local Development Environment
+To contribute to BPPC Marketplace, you will have to set up a development environment on your machine. For that, you'll need Docker.
+
+To install Docker on Ubuntu, you can use the convenience script: 
+```bash
+$ curl -fsSL https://get.docker.com -o get-docker.sh
+$ sudo sh get-docker.sh
+```
+
+For other operating systems, you can find instructions (here)[https://docs.docker.com/get-docker/].
+
+Next, you'll have to install `docker-compose`. You can do that using pip3:
+```bash
+$ pip3 install docker-compose
+```
+With the dependencies installed, you are ready to clone the repo run the server. 
+```
+$ git clone https://github.com/hedonhermdev/BPPC-Marketplace && cd BPPC-Marketplace
+$ sudo docker-compose up
+```
+Open `localost:1337` in a web browser and you should see the server hosted. If you have any issues with the above steps, please file an issue. 
+
