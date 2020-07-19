@@ -7,7 +7,7 @@ BPPC Marketplace let's students with a BITSMail to put up items for sale with an
 It is important to allow users without a BITS mail as there are a number of freshers who buy books from seniors (bookpops/bookmoms) but don't have a BITS mail for a while after coming to campus. But to prevent misuse of the app, it is essential to not let anyone without a BITS mail to sell a product. 
 
 ## The Backend
-It started as a small learning project between me and a couple of friends with a small backend with a REST API. But as the project grew, we found it increasingly difficult to collaborate with the app team which had their own volatile demands. To encounter these problems, we saw it fit to switch to GraphQL. Currently, the backend infrastructure currently features:
+The backend server (ie this repo) is split up in the following components: 
 
 - A Django+GraphQL webapp
 - A PostgreSQL Database for primary data storage
@@ -16,8 +16,8 @@ It started as a small learning project between me and a couple of friends with a
 - A comprehensive test-suite
 
 (If any of the above features are broken, don't work or you would like to add a feature, please open an issue.)
-It is hosted at: https://market.hedonhermdev.tech
 
+The live version is hosted at: https://market.hedonhermdev.tech
 To test the GraphQL API and learn more about the schema, go to: https://market.hedonhermdev.tech/api/graphql 
 
 
