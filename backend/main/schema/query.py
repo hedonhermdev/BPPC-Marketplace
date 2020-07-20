@@ -5,7 +5,7 @@ from graphql_jwt.decorators import login_required
 from main import models
 from main.schema import utils
 from main.schema.types import (Category, Product, ProductOffer,
-                               ProductPaginated, Profile, UserReport)
+                               PaginatedProducts, Profile, UserReport, PaginatedProfiles)
 
 from main.documents import ProductDocument
 
@@ -18,8 +18,9 @@ class Query:
     profile = graphene.Field(Profile, id=graphene.Int(), username=graphene.String(), email=graphene.String())
     my_profile = graphene.Field(Profile)
     product_offer = graphene.List(ProductOffer, id=graphene.Int())
-    wishlist = graphene.List(Product)
-    products = graphene.Field(ProductPaginated, page=graphene.Int(), pagesize=graphene.Int())
+    wishlist = graphene.Field(PaginatedProducts, page=graphene.Int(), pagesize=graphene.Int())
+    products = graphene.Field(PaginatedProducts, page=graphene.Int(), pagesize=graphene.Int())
+    profiles = graphene.Field(PaginatedProfiles, page=graphene.Int(), pagesize=graphene.Int())
 
     search_products = graphene.List(Product, querystring=graphene.String())
 
@@ -71,14 +72,17 @@ class Query:
                 return None
         return None
 
+    # profile.wishlist.products.all()
     @login_required
-    def resolve_wishlist(self, info, **kwargs):
+    def resolve_wishlist(self, info, page, pagesize):
         profile = info.context.user.profile
 
-        if profile is not None:
-            return profile.wishlist.products.all()
-
-        return None
+        if profile is None:
+            return None
+        
+        page_size = pagesize
+        qs = profile.wishlist.products.all()
+        return utils.get_paginator(qs, page_size, page, PaginatedProducts)
         
     @login_required
     def resolve_product_offer(self, info, **kwargs):
@@ -96,7 +100,7 @@ class Query:
     def resolve_products(self, info, page, pagesize):
         page_size = pagesize
         qs = models.Product.objects.all().order_by("created_at")
-        return utils.get_paginator(qs, page_size, page, ProductPaginated)
+        return utils.get_paginator(qs, page_size, page, PaginatedProducts)
 
     @login_required
     def resolve_my_profile(self, info, **kwargs):
@@ -109,4 +113,10 @@ class Query:
         hits = ProductDocument.search().query("multi_match", fields=['name', 'description'],  query=querystring)
         print(hits)
         return hits.to_queryset()
+
+    @login_required
+    def resolve_profiles(self, info, page, pagesize):
+        page_size = pagesize
+        qs = models.Profile.objects.all()
+        return utils.get_paginator(qs, page_size, page, PaginatedProfiles)
 

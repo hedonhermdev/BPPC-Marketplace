@@ -131,9 +131,14 @@ class Wishlist(DjangoObjectType):
         return self.profile
 
 
-class ProductPaginated(graphene.ObjectType):
+class Paginator(graphene.ObjectType):
     page = graphene.Int()
     pages = graphene.Int()
     has_next = graphene.Boolean()
     has_prev = graphene.Boolean()
+ 
+class PaginatedProducts(Paginator, graphene.ObjectType):
     objects = graphene.List(Product)
+
+class PaginatedProfiles(Paginator, graphene.ObjectType):
+    objects = graphene.List(Profile)
