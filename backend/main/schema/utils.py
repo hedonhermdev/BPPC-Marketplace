@@ -21,9 +21,9 @@ def get_paginator(qs, page_size, page, paginated_type, **kwargs):
     )
 
     
-def create_product(seller, **kwargs, ):
+def create_product(seller, files, **kwargs, ):
     """
-        Given the attributes of a product and a Profile(seller) instance, create a new product and save it to the database. Utility for the CreateProduct mutation. 
+        Given the attributes of a product and images and a Profile(seller) instance, create a new product and save it with respective ImageModels' to the database. Utility for the CreateProduct mutation. 
     """
 
     p = models.Product()
@@ -33,6 +33,7 @@ def create_product(seller, **kwargs, ):
     p.is_negotiable = kwargs.get('is_negotiable')
     p.description = kwargs.get('description')
     p.category_id = kwargs.get('category_id')
+
     p.save()
 
     return p
@@ -109,7 +110,20 @@ def create_user_report(reported_by, **kwargs):
 
     return report
 
-
+def add_images_to_product(files, id):
+    """
+        Given the attributes of a Product and its related images, create new ImageModels' and add them to respective images attribute of the respective Product
+    """
+    product = models.Product.objects.get(id=id)
+    if len(files.keys()) != 0:
+        for i in files.keys():
+            print(files.keys())
+            imag = models.ImageModel()
+            imag.image = files[i]
+            imag.save()
+            product.images.add(imag)
+    product.save()
+    return product
 # def update_offer(offer, **kwargs):
 
 #     fields = ['amount', 'message']

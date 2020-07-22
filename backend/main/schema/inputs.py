@@ -22,3 +22,7 @@ class ProductOfferInput(graphene.InputObjectType):
 class UserReportInput(graphene.InputObjectType):
     reported_user = graphene.String()
     category = graphene.Int()
+
+class UploadImageInput(graphene.InputObjectType):
+    product_id = graphene.Int()
+
