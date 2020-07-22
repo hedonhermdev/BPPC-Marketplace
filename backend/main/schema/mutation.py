@@ -34,7 +34,6 @@ class MutationPayload(graphene.ObjectType):
 class CreateProduct(MutationPayload, graphene.Mutation):
     class Arguments:
         input = ProductInput()
-        file = Upload(required=False)
 
     product = graphene.Field(Product)
 
@@ -43,10 +42,7 @@ class CreateProduct(MutationPayload, graphene.Mutation):
     def mutate(root, info, input=None):
         errors = []
 
-        files = info.context.FILES
-
         seller = info.context.user.profile
-        product = utils.create_product(seller, files, **input.__dict__)
         viewlog.debug(f"Product created with details : {product.to_dict()}")
 
         return CreateProduct(errors=errors,product=product)
