@@ -1,4 +1,5 @@
 import json
+import tempfile
 
 from django.test import RequestFactory, TestCase
 from graphene.test import Client
@@ -214,3 +215,52 @@ class TestOfferMutations(TestCase):
 
         errors = data['errors']
         self.assertEqual(errors[0], "Missing argument 'amount'")
+
+class TestUploadImageMutations(TestCase):
+    query_string = '''
+    mutation($prodId : Int! ) {
+    uploadImage(input: { productId: $prodId }) {
+        ok
+        }
+    }
+    '''
+
+    def test_upload_single_image(self):
+        product, user = create_product_from_email('f20190663@pilani.bits-pilani.ac.in', is_negotiable=False)
+        result = execute_request_with_user(self.query_string, user=user, variables={"prodId":product.id}, context = {
+            "img1.jpg": tempfile.NamedTemporaryFile(suffix=".jpg")
+        })
+
+        self.assertNotIn('errors', result)
+
+        data = result['data']['uploadImage']
+
+        self.assertEqual(data['ok'], True)
+
+    def test_upload_multi_image(self):
+        product, user = create_product_from_email('f20190663@pilani.bits-pilani.ac.in', is_negotiable=False)
+        result = execute_request_with_user(self.query_string, user=user, variables={"prodId":product.id}, context = {
+            "img1.jpg": tempfile.NamedTemporaryFile(suffix=".jpg"),
+            "img2.jpg": tempfile.NamedTemporaryFile(suffix=".jpg"),
+            "img3.jpg": tempfile.NamedTemporaryFile(suffix=".jpg")
+        })
+
+        self.assertNotIn('errors', result)
+
+        data = result['data']['uploadImage']
+
+        self.assertEqual(data['ok'], True)
+
+    def test_upload_single_image_by_user_not_seller(self):
+        product, user = create_product_from_email('f20190663@pilani.bits-pilani.ac.in', is_negotiable=False)
+        user2 = create_user_from_email('f20190663@pilani.bits-pilani.ac.in')
+        result = execute_request_with_user(self.query_string, user=user2, variables={"prodId":product.id}, context = {
+            "img1.jpg": tempfile.NamedTemporaryFile(suffix=".jpg")
+        })
+
+        self.assertNotIn('errors', result)
+
+        data = result['data']['uploadImage']
+
+        self.assertEqual(data['ok'], True)
+
