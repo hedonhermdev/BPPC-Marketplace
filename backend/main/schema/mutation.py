@@ -3,11 +3,13 @@ import logging
 import graphene
 from django.core.exceptions import ObjectDoesNotExist
 from graphql_jwt.decorators import login_required, user_passes_test
+from graphene_file_upload.scalars import Upload
 
 from main import models
 from main.schema import utils
 from main.schema.inputs import (ProductInput, ProductOfferInput,
-                                ProfileUpdateInput, UserReportInput)
+                                ProfileUpdateInput, UserReportInput,
+                                UploadImageInput)
 from main.schema.types import (Product, ProductOffer, Profile, UserReport,
                                Wishlist)
 
@@ -41,7 +43,6 @@ class CreateProduct(MutationPayload, graphene.Mutation):
         errors = []
 
         seller = info.context.user.profile
-        product = utils.create_product(seller, **input.__dict__)
         viewlog.debug(f"Product created with details : {product.to_dict()}")
 
         return CreateProduct(errors=errors,product=product)
@@ -195,6 +196,37 @@ class CreateUserReport(MutationPayload, graphene.Mutation):
 
         return CreateUserReport(errors=errors, user_report=user_report)
 
+class UploadImage(MutationPayload, graphene.Mutation):
+    class Arguments:
+        input = UploadImageInput()
+        file = Upload(required=False)
+
+    product = graphene.Field(Product)
+
+    @login_required
+    @user_passes_test(lambda user: user.profile.permission_level >= models.Profile.SELLER)
+    def mutate(root, info, input=None):
+        errors = []
+        id = input.get('product_id')
+        # id = input.get('product_id')
+
+        try:
+            product = models.Product.objects.get(id=id)
+        except ObjectDoesNotExist:
+            errors.append(f"Product with primary key {id} does not exist.")
+            return UploadImage(errors=errors, product=None)
+
+        if product.seller != info.context.user.profile:
+            errors.append("You are not allowed to perform this action.")
+            return UploadImage(errors=errors, product=None)
+
+        files = info.context.FILES
+
+        product = utils.add_images_to_product(files, id)
+        viewlog.debug(f"Product created with details : {product.to_dict()}")
+
+        return UploadImage(errors=errors,product=product)
+
 # class UpdateOffer(MutationPayload, graphene.Mutation):
 #     class Arguments:
 #         id = graphene.Int(required=True)
@@ -227,4 +259,5 @@ class Mutation:
     update_wishlist = UpdateWishlist.Field()
     create_offer = CreateOffer.Field()
     create_user_report = CreateUserReport.Field()
+    upload_image = UploadImage.Field()
     # update_offer = UpdateOffer.Field()
