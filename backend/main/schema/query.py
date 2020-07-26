@@ -22,7 +22,7 @@ class Query:
     products = graphene.Field(PaginatedProducts, page=graphene.Int(), pagesize=graphene.Int())
     profiles = graphene.Field(PaginatedProfiles, page=graphene.Int(), pagesize=graphene.Int())
 
-    search_products = graphene.List(Product, querystring=graphene.String())
+    search_products = graphene.Field(PaginatedProducts, page=graphene.Int(), pagesize=graphene.Int(), querystring=graphene.String())
 
     @login_required
     def resolve_all_categories(self, info, **kwargs):
@@ -108,11 +108,13 @@ class Query:
         return profile
 
     @login_required
-    def resolve_search_products(self, info, **kwargs):
+    def resolve_search_products(self, info, page, pagesize, **kwargs):
         querystring = kwargs.get('querystring')
         hits = ProductDocument.search().query("multi_match", fields=['name', 'description'],  query=querystring)
         print(hits)
-        return hits.to_queryset()
+        qs = hits.to_queryset()
+        page_size = pagesize
+        return utils.get_paginator(qs, page_size, page, PaginatedProducts)
 
     @login_required
     def resolve_profiles(self, info, page, pagesize):
