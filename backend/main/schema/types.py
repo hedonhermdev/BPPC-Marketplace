@@ -46,6 +46,7 @@ class Product(DjangoObjectType):
     images = graphene.List(graphene.String)
     offers = graphene.List(ProductOffer)
     questions = graphene.List(ProductQnA)
+    in_wishlist = graphene.Boolean
     
     @staticmethod
     def resolve_images(self, info, **kwargs):
@@ -59,8 +60,14 @@ class Product(DjangoObjectType):
     def resolve_questions(self, info, **kwargs):
         return self.questions.all()
 
+    @staticmethod
     def resolve_reports(self, info, **kwargs):
         return self.reports.all()
+
+    @staticmethod
+    def resolve_in_wish_list(self, info, **kwargs):
+        wishlist_ids = info.context.user.profile.wishlist.values_list('id', flat=True)
+        return (self.id in wishlist_ids)
 
 
 class Category(DjangoObjectType):
