@@ -27,7 +27,7 @@ services:
       - "9300:9300"
     volumes:
       - elasticsearch:/usr/share/elasticsearch/data
-  web:
+  web: &web
     container_name: marketplace_web
     build: ./backend
     command: gunicorn marketplace.wsgi:application --bind 0.0.0.0:8000 --workers=4 
@@ -38,9 +38,22 @@ services:
     depends_on:
       - db
       - search
+      - broker
+      - celery_worker
     volumes:
       - staticfiles:/home/app/web/staticfiles/
       - mediafiles:/home/app/web/mediafiles/
+  broker:
+    container_name: marketplace_broker
+    image: rabbitmq:3.7-alpine
+  celery_worker:
+    <<: *web
+    container_name: marketplace_celery_worker
+    command: celery -A marketplace worker --loglevel=INFO
+    ports: []
+    depends_on: 
+      - broker
+      - db
   nginx:
     container_name: marketplace_nginx
     image: nginx:mainline-alpine

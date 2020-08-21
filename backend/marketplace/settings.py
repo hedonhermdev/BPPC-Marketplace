@@ -108,6 +108,8 @@ DATABASES = {
     }
 }
 
+CELERY_BROKER_URL = "amqp://broker"
+
 # CACHES = {
 #     "default": {
 #         "BACKEND": "django_redis.cache.RedisCache",

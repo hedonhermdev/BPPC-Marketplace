@@ -3,10 +3,12 @@ attrs==19.3.0
 Babel==2.8.0
 beautifulsoup4==4.9.1
 cachetools==4.1.1
+celery==4.2.0
 certifi==2020.6.20
 chardet==3.0.4
 cssselect==1.1.0
 Django==2.2.13
+django-celery==3.3.1
 django-cors-headers==3.2.1
 django-cursor-pagination==0.1.4
 django-debug-toolbar==2.2
