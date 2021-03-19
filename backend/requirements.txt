@@ -20,7 +20,7 @@ django-phonenumbers==1.0.1
 django-redis==4.11.0
 django-request-logging==0.7.1
 django-webtest==1.9.7
-djangorestframework==3.11.0
+djangorestframework==3.11.2
 djangorestframework-jwt==1.11.0
 elasticsearch==6.8.1
 elasticsearch-dsl==6.4.0
