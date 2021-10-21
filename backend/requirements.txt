@@ -1,6 +1,6 @@
 aniso8601==7.0.0
 attrs==19.3.0
-Babel==2.8.0
+Babel==2.9.1
 beautifulsoup4==4.9.1
 cachetools==4.1.1
 celery==4.2.0
